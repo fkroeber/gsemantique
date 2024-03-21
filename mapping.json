@@ -1,0 +1,134 @@
+{
+  "entity": {
+    "obs": {
+      "color": {
+        "type": "processing_chain",
+        "with": {
+          "type": "layer",
+          "reference": [
+            "Planet",
+            "reflectance",
+            "lndst_qa"
+          ]
+        },
+        "do": [
+          {
+            "type": "verb",
+            "name": "evaluate",
+            "params": {
+              "operator": "not_equal",
+              "y": 1
+            }
+          }
+        ]
+      }
+    },
+    "obs_valid": {
+      "color": {
+        "type": "processing_chain",
+        "with": {
+          "type": "layer",
+          "reference": [
+            "Planet",
+            "reflectance",
+            "lndst_qa"
+          ]
+        },
+        "do": [
+          {
+            "type": "verb",
+            "name": "evaluate",
+            "params": {
+              "operator": "in",
+              "y": {
+                "type": "set",
+                "content": [
+                  5440,
+                  5504,
+                  21824,
+                  21952
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ndvi": {
+      "color": {
+        "type": "processing_chain",
+        "with": {
+          "type": "layer",
+          "reference": [
+            "Planet",
+            "reflectance",
+            "lndst_nir08"
+          ]
+        },
+        "do": [
+          {
+            "type": "verb",
+            "name": "evaluate",
+            "params": {
+              "operator": "normalized_difference",
+              "y": {
+                "type": "layer",
+                "reference": [
+                  "Planet",
+                  "reflectance",
+                  "lndst_red"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "vegetation": {
+      "color": {
+        "type": "processing_chain",
+        "with": {
+          "type": "concept",
+          "reference": [
+            "entity",
+            "ndvi"
+          ],
+          "property": "color"
+        },
+        "do": [
+          {
+            "type": "verb",
+            "name": "evaluate",
+            "params": {
+              "operator": "greater",
+              "y": 0.2
+            }
+          }
+        ]
+      }
+    },
+    "strong_vegetation": {
+      "color": {
+        "type": "processing_chain",
+        "with": {
+          "type": "concept",
+          "reference": [
+            "entity",
+            "ndvi"
+          ],
+          "property": "color"
+        },
+        "do": [
+          {
+            "type": "verb",
+            "name": "evaluate",
+            "params": {
+              "operator": "greater",
+              "y": 0.5
+            }
+          }
+        ]
+      }
+    }
+  }
+}
