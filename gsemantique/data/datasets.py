@@ -151,7 +151,11 @@ class Dataset:
         self.layout_keys = []
         self.layout_bands = {}
 
-    def add_layout_info(self, keys, file="gsemantique/layout.json"):
+    def add_layout_info(
+        self,
+        keys,
+        file="C:/Users/felix/repositories/gsemantique/gsemantique/data/layout.json",
+    ):
         """
         Adds dataset information from layout.json,
         i.e. the band keys & their attributes
@@ -293,7 +297,7 @@ ds.add_layout_info(
 )
 ds_catalog.add_dataset(ds)
 
-# tbd: here
+
 ds = Dataset(
     provider="Planet",
     endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",

@@ -1,0 +1,38 @@
+{
+  "obs_count": {
+    "type": "processing_chain",
+    "with": {
+      "type": "concept",
+      "reference": [
+        "entity",
+        "obs"
+      ]
+    },
+    "do": [
+      {
+        "type": "verb",
+        "name": "reduce",
+        "params": {
+          "reducer": "count",
+          "dimension": "time"
+        }
+      },
+      {
+        "type": "verb",
+        "name": "apply_custom",
+        "params": {
+          "na_value": -99,
+          "verb": "update_na"
+        }
+      },
+      {
+        "type": "verb",
+        "name": "apply_custom",
+        "params": {
+          "dtype": "int16",
+          "verb": "change_dtype"
+        }
+      }
+    ]
+  }
+}

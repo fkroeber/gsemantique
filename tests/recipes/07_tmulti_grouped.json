@@ -1,0 +1,141 @@
+{
+  "aoi_mask": {
+    "type": "processing_chain",
+    "with": {
+      "type": "layer",
+      "reference": [
+        "Planet",
+        "reflectance",
+        "lndst_red"
+      ]
+    },
+    "do": [
+      {
+        "type": "verb",
+        "name": "filter",
+        "params": {
+          "filterer": {
+            "type": "concept",
+            "reference": [
+              "entity",
+              "obs"
+            ]
+          }
+        }
+      },
+      {
+        "type": "verb",
+        "name": "reduce",
+        "params": {
+          "reducer": "all",
+          "dimension": "time"
+        }
+      }
+    ]
+  },
+  "comp": {
+    "type": "processing_chain",
+    "with": {
+      "type": "collection",
+      "elements": [
+        {
+          "type": "layer",
+          "reference": [
+            "Planet",
+            "reflectance",
+            "lndst_red"
+          ]
+        },
+        {
+          "type": "layer",
+          "reference": [
+            "Planet",
+            "reflectance",
+            "lndst_green"
+          ]
+        },
+        {
+          "type": "layer",
+          "reference": [
+            "Planet",
+            "reflectance",
+            "lndst_blue"
+          ]
+        }
+      ]
+    },
+    "do": [
+      {
+        "type": "verb",
+        "name": "concatenate",
+        "params": {
+          "dimension": "band"
+        }
+      },
+      {
+        "type": "verb",
+        "name": "filter",
+        "params": {
+          "filterer": {
+            "type": "concept",
+            "reference": [
+              "entity",
+              "obs_valid"
+            ]
+          }
+        }
+      },
+      {
+        "type": "verb",
+        "name": "groupby",
+        "params": {
+          "grouper": {
+            "type": "collection",
+            "elements": [
+              {
+                "type": "processing_chain",
+                "with": {
+                  "type": "self"
+                },
+                "do": [
+                  {
+                    "type": "verb",
+                    "name": "extract",
+                    "params": {
+                      "dimension": "time",
+                      "component": "year"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "processing_chain",
+                "with": {
+                  "type": "self"
+                },
+                "do": [
+                  {
+                    "type": "verb",
+                    "name": "extract",
+                    "params": {
+                      "dimension": "time",
+                      "component": "month"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "verb",
+        "name": "reduce",
+        "params": {
+          "reducer": "median",
+          "dimension": "time"
+        }
+      }
+    ]
+  }
+}

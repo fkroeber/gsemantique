@@ -1,0 +1,22 @@
+{
+  "obs_count": {
+    "type": "processing_chain",
+    "with": {
+      "type": "concept",
+      "reference": [
+        "entity",
+        "obs"
+      ]
+    },
+    "do": [
+      {
+        "type": "verb",
+        "name": "reduce",
+        "params": {
+          "reducer": "count",
+          "dimension": "time"
+        }
+      }
+    ]
+  }
+}

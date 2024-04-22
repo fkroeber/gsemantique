@@ -84,9 +84,9 @@ class Finder:
         self.item_coll = self._postprocess_search(item_coll)
 
         # print response
+        # gdf = gpd.GeoDataFrame.from_features(item_dicts, crs="EPSG:4326")
         item_dicts = [item.to_dict() for item in self.item_coll]
-        gdf = gpd.GeoDataFrame.from_features(item_dicts, crs="EPSG:4326")
-        print(f"Found: {len(gdf):d} datasets")
+        print(f"Found: {len(item_dicts):d} datasets")
 
     def postprocess_metadata(self):
         """
