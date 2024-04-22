@@ -4,7 +4,7 @@ import pandas as pd
 import pystac
 import planetary_computer as pc
 from pystac_client import Client
-from .datasets import ds_catalog
+from .data.datasets import ds_catalog
 
 
 class Finder:

@@ -23,7 +23,7 @@ from semantique import exceptions
 from semantique.extent import SpatialExtent, TemporalExtent
 from semantique.processor.arrays import Collection
 from semantique.processor.core import QueryProcessor
-from semantique.vrt import virtual_merge
+from .vrt import virtual_merge
 
 
 class TileHandler:
