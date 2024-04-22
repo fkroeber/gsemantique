@@ -1,10 +1,11 @@
-import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pystac
 import planetary_computer as pc
 from pystac_client import Client
-from .data.datasets import ds_catalog
+from .datasets import DatasetCatalog
+
+ds_catalog = DatasetCatalog()
 
 
 class Finder:
@@ -84,7 +85,6 @@ class Finder:
         self.item_coll = self._postprocess_search(item_coll)
 
         # print response
-        # gdf = gpd.GeoDataFrame.from_features(item_dicts, crs="EPSG:4326")
         item_dicts = [item.to_dict() for item in self.item_coll]
         print(f"Found: {len(item_dicts):d} datasets")
 
