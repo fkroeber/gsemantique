@@ -6,6 +6,7 @@ from pystac_client import Client
 from .datasets import DatasetCatalog
 
 ds_catalog = DatasetCatalog()
+ds_catalog.load()
 
 
 class Finder:

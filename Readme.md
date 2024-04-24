@@ -6,9 +6,9 @@
 <img src="docs/py_logo.png" align="right" width="150" />
 
 This package builds on top of [semantique](https://zgis.github.io/semantique/#) and extends its functionality by offering:
-* Pre-configured access to a variety of EO datasets with global coverage (e.g., Sentinel-1, Sentinel-2, Landsat)
-* Retrieval & storage mechanisms for the data to persist data cube inputs locally and simplify the rebuilding of the data cubes and replication of the analyses
-* Scaling mechanisms that allow to evaluate recipes for large spatio-temporal extents up to the mesoscale, with internal automatic handling of the required chunking of the processing into smaller parts
+1. Pre-configured access to a variety of EO datasets with global coverage (e.g. Sentinel-1, Sentinel-2, Landsat)
+2. Retrieval & storage mechanisms for the data to persist data cube inputs locally and simplify the rebuilding of the data cubes and replication of the analyses
+3. Scaling mechanisms that allow to evaluate recipes for large spatio-temporal extents up to the mesoscale, with internal automatic handling of the required chunking of the processing into smaller parts
 
 ## Installation
 
@@ -25,13 +25,6 @@ pip install git+https://github.com/fkroeber/gsemantique.git
 ```
 git clone https://github.com/fkroeber/gsemantique.git
 cd gsemantique
-pip install .
-```
-
-or to install it in editable mode (e.g. to add dataset)
-
-```
-git clone https://github.com/fkroeber/gsemantique.git
-cd gsemantique
-pip install -e .
+pip install .     # install in non-editable mode
+#pip install -e . # install in editable mode 
 ```
