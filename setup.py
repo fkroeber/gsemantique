@@ -6,9 +6,10 @@ with open("README.md", encoding="utf-8") as file:
 
 # List dependencies.
 dependencies = [
+    "aiohttp-retry",
     "multiprocess",
     "planetary-computer @ git+https://github.com/fkroeber/planetary-computer-sdk-for-python.git",
-    "semantique @ git+https://github.com/fkroeber/semantique.git@merged#egg=semantique",
+    "semantique",
     "stac-asset",
     "stackstac @ git+https://github.com/fkroeber/stackstac.git",
     "tqdm",
