@@ -9,7 +9,7 @@ dependencies = [
     "aiohttp-retry",
     "multiprocess",
     "planetary-computer @ git+https://github.com/fkroeber/planetary-computer-sdk-for-python.git",
-    "semantique",
+    "semantique @ git+https://github.com/fkroeber/semantique.git@merged_II",
     "stac-asset",
     "stackstac @ git+https://github.com/fkroeber/stackstac.git",
     "tqdm",
