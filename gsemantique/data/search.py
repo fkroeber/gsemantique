@@ -1,21 +1,31 @@
 import numpy as np
 import pandas as pd
-import pystac
 import planetary_computer as pc
 from pystac_client import Client
-from .datasets import DatasetCatalog
-
-ds_catalog = DatasetCatalog()
-ds_catalog.load()
 
 
 class Finder:
     """
     Searches a given catalog to output the item's STAC metadata
-    (-> which can then be forwarded to STACCube)
+    This can then be forwarded to STACCube.
     """
 
-    def __init__(self, t_start, t_end, aoi, provider, collection, layer_key):
+    def __init__(
+        self, ds_catalog, t_start, t_end, aoi, provider, collection, layer_key
+    ):
+        """
+        Initializes the Finder object with the specified inputs
+
+        Args:
+            ds_catalog (DatasetCatalog): Dataset catalog containing the data sets to be searched
+            t_start (str): Start time of the search
+            t_end (str): End time of the search
+            aoi (tbd): Area of interest for the search
+            provider (tbd): tbd
+            collection (tbd): tbd
+            layer_key (tbd): tbd
+        """
+        self.ds_catalog = ds_catalog
         self.params_in = {
             "t_start": t_start,
             "t_end": t_end,
@@ -31,7 +41,7 @@ class Finder:
         Retrieves the data search parameters based on the specified inputs
         """
         # get specific collection & make sure that it is filtered
-        collection = ds_catalog.filter(
+        collection = self.ds_catalog.filter(
             collection=self.params_in["collection"],
             provider=self.params_in["provider"],
         )
@@ -43,12 +53,8 @@ class Finder:
         self.params_search["catalog"] = collection["endpoint"]
         self.params_search["collection"] = collection["collection"]
         self.params_search["temp"] = collection["temporality"]
-        self.params_search["lfile"] = collection["layout_file"]
         self.params_search["lkeys"] = collection["layout_keys"]
         self.params_search["aoi"] = self.params_in["aoi"]
-
-        # ensure that key is in layout file
-        assert self.params_in["layer_key"] in self.params_search["lkeys"]
 
         # retrieve time range for query
         if self.params_search["temp"]:
@@ -57,6 +63,12 @@ class Finder:
         else:
             self.params_search["t_start"] = np.datetime64("1970-01-01")
             self.params_search["t_end"] = np.datetime64("today")
+
+        # ensure that search key is in layout file
+        if self.params_in["layer_key"] not in self.params_search["lkeys"]:
+            raise ValueError(
+                f"Layer key {self.params_in['layer_key']} not found in search parameters."
+            )
 
     def retrieve_metadata(self):
         """
@@ -77,10 +89,15 @@ class Finder:
                 np.datetime_as_string(self.params_search["t_start"], timezone="UTC"),
                 np.datetime_as_string(self.params_search["t_end"], timezone="UTC"),
             ],
-            limit=100,
             intersects=self.params_search["aoi"],
         )
         item_coll = query.item_collection()
+
+        # write layout keys to metadata
+        for item in item_coll:
+            props = item.properties
+            props["semantique:key"] = self.params_in["layer_key"]
+            item.properties = props
 
         # filter search results
         self.item_coll = self._postprocess_search(item_coll)
@@ -95,9 +112,6 @@ class Finder:
         """
         # set collection items datetime (if not provided)
         for item in self.item_coll:
-            pystac.Item.from_dict(
-                item.to_dict()
-            )  # necessary to create datetime if not set yet
             if not item.properties["datetime"]:
                 start_time = pd.Timestamp(item.properties["start_datetime"])
                 end_time = pd.Timestamp(item.properties["end_datetime"])
@@ -120,11 +134,7 @@ class Finder:
                     x
                     for x in item_coll
                     if x.properties["sar:product_type"] == var.upper()
-                ]
-                item_coll = [
-                    x
-                    for x in item_coll
-                    if x.properties["sar:polarizations"] == [pol.upper()]
+                    and x.properties["sar:polarizations"] == [pol.upper()]
                 ]
             else:
                 var = suffix[0]

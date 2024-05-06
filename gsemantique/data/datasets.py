@@ -18,10 +18,10 @@ class Dataset:
         provider,
         endpoint,
         collection,
-        category,
         temporality,
         temporal_extent=None,
         spatial_extent=None,
+        category=None,
         src=None,
         info=None,
         copyright=None,
@@ -31,10 +31,10 @@ class Dataset:
             provider (str): arbitrary abbreviation of dataset provider
             endpoint (str): STAC catalog endpoint of the dataset
             collection (str): STAC collection name of the dataset
-            category (str): arbitrary categorisation of the dataset
             temporality (str): frequency of data acquistions
             temporal_extent (lst): temporal coverage, can be auto-inferred
             spatial_extent (lst): spatial coverage, can be auto-inferred
+            category (str): arbitrary categorisation of the dataset
             src (str): source of dataset
             info (str): general information on the dataset
             copyright (str): license information
@@ -92,9 +92,9 @@ class Dataset:
                 # parse spatial and temporal extents
                 if self.spatial_extent is None:
                     spatial_extent = collection.extent.spatial.bboxes
-                    self.spatial_extent = np.round(spatial_extent).tolist()
+                    self.spatial_extent = np.round(spatial_extent).tolist()[0]
                 if self.temporal_extent is None:
-                    self.temporal_extent = collection.extent.temporal.intervals
+                    self.temporal_extent = collection.extent.temporal.intervals[0]
             except Exception as e:
                 print(f"Failed to auto-infer extents: {e}")
 
@@ -184,7 +184,10 @@ class DatasetCatalog:
         df = self.parse_as_table(keys=None)
         for attr, value in criteria.items():
             if value is not None:
-                df = df[df[attr] == value]
+                if isinstance(value, list):
+                    df = df[df[attr].isin(value)]
+                else:
+                    df = df[df[attr] == value]
             else:
                 df = df[df[attr].isna()]
         return df
@@ -204,11 +207,11 @@ class DatasetCatalog:
             else:
                 raise ValueError(f"{cache_path} does not exist.")
         else:
-            self.datasets = self._load_defaults()
+            self._load_defaults()
 
     def parse_as_table(
         self,
-        keys=["provider", "endpoint", "collection", "category", "temporality"],
+        keys=["provider", "collection", "category", "temporality"],
     ):
         """
         Creates and returns a DataFrame containing all datasets,
