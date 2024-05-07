@@ -72,9 +72,9 @@ class Dataset:
         self.layout_keys = keys
         with open(self.layout_file, "r") as f:
             layout_json = json.load(f)
-            parsed_layout = self._parse_layout(layout_json)
+            parsed_layout = Dataset._parse_layout(layout_json)
             for k in self.layout_keys:
-                self.layout_bands[k[-1]] = self._lookup(parsed_layout, *k)
+                self.layout_bands[k[-1]] = Dataset._lookup(parsed_layout, *k)
 
     def _auto_infer_extents(self):
         """
@@ -98,7 +98,8 @@ class Dataset:
             except Exception as e:
                 print(f"Failed to auto-infer extents: {e}")
 
-    def _parse_layout(self, obj):
+    @staticmethod
+    def _parse_layout(obj):
         """
         Function to recursively parse and metadata objects from layout.json
         and to make them autocomplete friendly
@@ -128,7 +129,8 @@ class Dataset:
                 _parse(value, [key])
         return obj
 
-    def _lookup(self, obj, *reference):
+    @staticmethod
+    def _lookup(obj, *reference):
         """Lookup the metadata of a referenced data layer.
 
         Parameters
