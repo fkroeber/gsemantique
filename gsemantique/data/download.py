@@ -34,7 +34,7 @@ class Downloader:
         self.item_coll = item_coll
         self.assets = assets
         if not out_dir:
-            self.out_dir = f"data_{datetime.now().strftime('%H%M%S')}"
+            self.out_dir = f"data_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         else:
             self.out_dir = out_dir
 
@@ -94,24 +94,19 @@ class Downloader:
 
                 # clean directory
                 self._remove_empty_items(temp_dir)
-                n_items = len(os.listdir(temp_dir)) - 1
 
                 # evaluate size
-                if n_items == pre_n:
-                    mean_size = (
-                        Downloader._get_dir_size(temp_dir) / pre_n * len(self.item_coll)
-                    )
-                    sub_dirs = [os.path.join(temp_dir, x.id) for x in pre_coll]
-                    std_size = np.std([Downloader._get_dir_size(x) for x in sub_dirs])
-                    ci_size = (
-                        1.96 * std_size / ((pre_n - 1) ** 0.5) * len(self.item_coll)
-                    )
-                    print(
-                        f"Estimated total size: {Downloader._sizeof_fmt(mean_size)} \xb1 "
-                        f"{Downloader._sizeof_fmt(ci_size)} (95% confidence interval)"
-                    )
-                else:
-                    print("Not enough items to estimate size. Skipping preview run.")
+                n_items = len(os.listdir(temp_dir))
+                mean_size = (
+                    Downloader._get_dir_size(temp_dir) / n_items * len(self.item_coll)
+                )
+                sub_dirs = [os.path.join(temp_dir, x.id) for x in pre_coll]
+                std_size = np.std([Downloader._get_dir_size(x) for x in sub_dirs])
+                ci_size = 1.96 * std_size / ((n_items - 1) ** 0.5) * len(self.item_coll)
+                print(
+                    f"Estimated total size: {Downloader._sizeof_fmt(mean_size)} \xb1 "
+                    f"{Downloader._sizeof_fmt(ci_size)} (95% confidence interval)"
+                )
         else:
             print("Not enough items to estimate size. Skipping preview run.")
 
@@ -259,6 +254,6 @@ class Downloader:
         """
         for unit in ("", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"):
             if abs(num) < 1024.0:
-                return f"{num:3.0f}{unit}{suffix}"
+                return f"{num:.1f}{unit}{suffix}"
             num /= 1024.0
-        return f"{num:.0f}Yi{suffix}"
+        return f"{num:.1f}Yi{suffix}"
