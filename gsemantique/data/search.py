@@ -1,3 +1,4 @@
+import json
 import logging
 import numpy as np
 import pandas as pd
@@ -6,6 +7,7 @@ import pystac
 import xarray as xr
 from pystac_client import Client
 from semantique.processor.core import FakeProcessor
+from .datasets import Dataset
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +77,7 @@ class Finder:
         self.params_search["catalog"] = ds_entry["endpoint"]
         self.params_search["collection"] = ds_entry["collection"]
         self.params_search["temp"] = ds_entry["temporality"]
+        self.params_search["lfile"] = ds_entry["layout_file"]
         self.params_search["lkeys"] = ds_entry["layout_keys"]
         self.params_search["aoi"] = self.aoi
 
@@ -136,11 +139,20 @@ class Finder:
             self.item_coll = item_coll
 
         # collection-indifferent postprocessing
+        with open(self.params_search["lfile"], "r") as f:
+            layout_json = json.load(f)
+            parsed_layout = Dataset._parse_layout(layout_json)
         for item in self.item_coll:
-            # write layout keys to metadata
-            props = item.properties
-            props["semantique:key"] = layer_key
-            item.properties = props
+            # write layout key to assets extra field
+            asset_name = Dataset._lookup(parsed_layout, *layer_key)["name"]
+            if asset_name in item.assets:
+                asset_dict = item.assets[asset_name].to_dict()
+                asset_dict["semantique:key"] = layer_key
+                modified_asset = pystac.Asset.from_dict(asset_dict)
+                item.assets[asset_name] = modified_asset
+            # subset item's assets to searched asset
+            new_assets = {asset_name: item.assets[asset_name]}
+            item.assets = new_assets
             # set collection items datetimes
             if not item.properties["datetime"]:
                 start_time = pd.Timestamp(item.properties["start_datetime"])
