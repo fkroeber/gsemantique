@@ -56,6 +56,7 @@ class Finder:
         # compile results
         self.item_coll = [x for sl in item_colls for x in sl]
         self.item_coll = pystac.ItemCollection(self.item_coll)
+        self.item_coll = self._merge_assets_per_item(self.item_coll)
 
     def search_man(self, layer_key):
         self._retrieve_params(layer_key)
@@ -159,3 +160,29 @@ class Finder:
                 end_time = pd.Timestamp(item.properties["end_datetime"])
                 mean_time = start_time + (end_time - start_time) / 2
                 item.set_datetime(mean_time)
+
+    def _merge_assets_per_item(self, item_collection):
+        """
+        Merges items in an ItemCollection that have the same ID and belong to the same collection
+        by combining their assets.
+
+        Parameters:
+        - item_collection (pystac.ItemCollection): The collection of items to process.
+
+        Returns:
+        - pystac.ItemCollection: A new item collection with merged items.
+        """
+        merged_items = {}
+        for item in item_collection.items:
+            # combine item ID and collection ID to form a unique key
+            unique_key = f"{item.get_collection().id}::{item.id}"
+            if unique_key in merged_items:
+                existing_item = merged_items[unique_key]
+                for asset_key, asset in item.assets.items():
+                    if asset_key not in existing_item.assets:
+                        existing_item.add_asset(asset_key, asset)
+            else:
+                merged_items[unique_key] = item.clone()
+        # create a new item collection from the merged items
+        new_items = list(merged_items.values())
+        return pystac.ItemCollection(new_items)
