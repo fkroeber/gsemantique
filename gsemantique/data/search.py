@@ -1,6 +1,7 @@
 import json
 import logging
 import numpy as np
+import os
 import pandas as pd
 import planetary_computer as pc
 import pystac
@@ -9,6 +10,7 @@ from pystac_client import Client
 from semantique.processor.core import FakeProcessor
 from .datasets import Dataset
 
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger(__name__)
 
 
@@ -18,7 +20,14 @@ class Finder:
     This can then be forwarded to STACCube.
     """
 
-    def __init__(self, ds_catalog, t_start, t_end, aoi):
+    def __init__(
+        self,
+        ds_catalog,
+        t_start,
+        t_end,
+        aoi,
+        layout_file=os.path.join(FILE_PATH, "../data/layout.json"),
+    ):
         """
         Initializes the Finder object with the specified inputs
 
@@ -27,7 +36,9 @@ class Finder:
             t_start (str): Start time of the search
             t_end (str): End time of the search
             aoi (tbd): Area of interest for the search
+            layout_file (str): Path to the datacube layout file
         """
+        self.layout_file = layout_file
         self.ds_catalog = ds_catalog
         self.t_start = t_start
         self.t_end = t_end
@@ -78,7 +89,6 @@ class Finder:
         self.params_search["catalog"] = ds_entry["endpoint"]
         self.params_search["collection"] = ds_entry["collection"]
         self.params_search["temp"] = ds_entry["temporality"]
-        self.params_search["lfile"] = ds_entry["layout_file"]
         self.params_search["lkeys"] = ds_entry["layout_keys"]
         self.params_search["aoi"] = self.aoi
 
@@ -140,7 +150,7 @@ class Finder:
             self.item_coll = item_coll
 
         # collection-indifferent postprocessing
-        with open(self.params_search["lfile"], "r") as f:
+        with open(self.layout_file, "r") as f:
             layout_json = json.load(f)
             parsed_layout = Dataset._parse_layout(layout_json)
         for item in self.item_coll:

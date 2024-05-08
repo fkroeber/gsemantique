@@ -55,7 +55,6 @@ class Dataset:
         # get extents if not provided
         self._auto_infer_extents()
         # init empty attributes for layout
-        self.layout_file = None
         self.layout_keys = []
         self.layout_bands = {}
 
@@ -68,9 +67,8 @@ class Dataset:
         Adds dataset information from layout.json,
         i.e. the band keys & their attributes
         """
-        self.layout_file = file
         self.layout_keys = keys
-        with open(self.layout_file, "r") as f:
+        with open(file, "r") as f:
             layout_json = json.load(f)
             parsed_layout = Dataset._parse_layout(layout_json)
             for k in self.layout_keys:
