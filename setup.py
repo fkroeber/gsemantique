@@ -37,6 +37,9 @@ setup(
     author="Felix Kröber",
     author_email="felix.kroeber@plus.ac.at",
     packages=find_packages(),
+    package_data={
+        "gsemantique.data": ["*.pkl", "*.json"],
+    },
     python_requires=">=3.9",
     install_requires=dependencies,
     extras_require={"dev": dev_dependencies},
