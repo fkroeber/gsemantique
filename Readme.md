@@ -33,9 +33,9 @@ pip install .     # install in non-editable mode
 
 The package contains several [Jupyter demo notebooks](./demo/). They are providing an overview on the package's operating principles and some hands-on examples. If you want to avoid the installation setup effort and explore the notebooks in an interactive manner, you can make use of Binder or Google Colab. Simply click on the *Binder* or *Google Colab* badge. Doing so will setup an online environment for you with the package and all its dependencies installed. No installations or complicated system configurations required, you only need a web browser. Once the environment is build (it make take a few minutes), you can choose between the available demo notebooks or create your own notebook.
 
-> :warning: Note that gsemantique is designed to enable mesoscale analysis of big EO data on common consumer hardware infrastructure. Still, there is a minimum of resources required when working with EO data at scale. Binder and Colab are offering very restricted resources [1][2]. Therefore it is strongly recommended, to install the package locally and explore it this way.  
-
-> [1] Binder guarantees at least 1GB of RAM, with a maximum of 2GB. If you go over 2GB your kernel will be restarted.  
+> Note that gsemantique is designed to enable mesoscale analysis of big EO data on common consumer hardware infrastructure. Still, there is a minimum of resources required when working with EO data at scale. Binder and Colab are offering very restricted resources [1, 2]. Therefore it is strongly recommended, to install the package locally and explore it this way.
+> 
+> [1] Binder guarantees at least 1GB of RAM, with a maximum of 2GB.  
 > [2] For Colab, the default CPU is an Intel Xeon CPU with 2 vCPUs (virtual CPUs) with about 12GB of RAM. 
 
 
