@@ -31,11 +31,11 @@ pip install .     # install in non-editable mode
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fkroeber/gsemantique/main)
 [![Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/fkroeber/gsemantique/blob/main)  
 
-The package contains several [Jupyter demo notebooks](./demo/). They are providing some overview on the package's operating principles and some hands-on examples. If you want to avoid the installation setup effort and explore the package in an interactive manner, you can make use of Binder or Google Colab. Simply click on the *Binder* or *Google Colab* badge. Doing so will setup an online environment for you with the package and all its dependencies installed. No installations or complicated system configurations required, you only need a web browser. Once the environment is build (it make take a few minutes), you can choose between the available demo notebooks or create your own notebook.
+The package contains several [Jupyter demo notebooks](./demo/). They are providing an overview on the package's operating principles and some hands-on examples. If you want to avoid the installation setup effort and explore the notebooks in an interactive manner, you can make use of Binder or Google Colab. Simply click on the *Binder* or *Google Colab* badge. Doing so will setup an online environment for you with the package and all its dependencies installed. No installations or complicated system configurations required, you only need a web browser. Once the environment is build (it make take a few minutes), you can choose between the available demo notebooks or create your own notebook.
 
-:warning: Note that gsemantique is designed to enable mesoscale analysis of big EO data on common consumer hardware infrastructure. Still, there is a minimum of resources required when working with EO data at scale. Binder and Colab are offering very restricted resources [1][2]. Therefore it is strongly recommended, to install the package locally and explore it this way.  
+> :warning: Note that gsemantique is designed to enable mesoscale analysis of big EO data on common consumer hardware infrastructure. Still, there is a minimum of resources required when working with EO data at scale. Binder and Colab are offering very restricted resources [1][2]. Therefore it is strongly recommended, to install the package locally and explore it this way.  
 
-[1] While running, users are guaranteed at least 1GB of RAM, with a maximum of 2GB. This means you will always have 1GB, you may occasionally have between 1 and 2GB, and if you go over 2GB your kernel will be restarted.
-[2] The default CPU for Colab is an Intel Xeon CPU with 2 vCPUs (virtual CPUs) with 12GB of RAM. 
+> [1] Binder guarantees at least 1GB of RAM, with a maximum of 2GB. If you go over 2GB your kernel will be restarted.  
+> [2] For Colab, the default CPU is an Intel Xeon CPU with 2 vCPUs (virtual CPUs) with about 12GB of RAM. 
 
 
