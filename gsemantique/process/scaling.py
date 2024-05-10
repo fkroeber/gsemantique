@@ -36,6 +36,8 @@ class TileHandler:
         The query recipe to be processed.
       datacube : Datacube
         The datacube instance to process the query against.
+      mapping : Mapping
+        The mapping instance to process the query against.
       space : SpatialExtent
         The spatial extent in which the query should be processed.
       time : TemporalExtent
@@ -68,9 +70,9 @@ class TileHandler:
                   array-like outputs and will then be spatio-temporally merged.
                   It represents a balance between the highest possible similarity
                   of the result to a run of the recipes without `TileHandler` and
-                  the practical reusability of the results (since everything is
-                  available as a maximum three-module array that can be easily
-                  processed further). This is the default option.
+                  the practical reusability of the results (since every output is
+                  an array with at most 3 dimension that can be easily processed
+                  further). This is the default option.
           "vrt_shapes" - Tiled results will be postprocessed to ensure at most 3D
                       array-like outputs. They will be stored as individual,
                       irregularly shaped tiles and a virtual raster will be
@@ -101,17 +103,13 @@ class TileHandler:
       **config :
         Additional configuration parameters forwarded to QueryRecipe.execute.
         See :class:`QueryRecipe`, respectively :class:`QueryProcessor`.
-        Needs to contain at least mapping instance to process the query against.
-        (tbd: exclude mapping as obligatory parameter such that only optional
-        parameters need to be placed here)
-
-    tbd: add logger
     """
 
     def __init__(
         self,
         recipe,
         datacube,
+        mapping,
         space,
         time,
         spatial_resolution,
@@ -121,14 +119,15 @@ class TileHandler:
         tile_dim=None,
         merge_mode="merged",
         out_dir=None,
-        caching=False,
+        caching=True,
         reauth=True,
-        verbose=False,
+        verbose=True,
         **config,
     ):
         # parse args
         self.recipe = recipe
         self.datacube = datacube
+        self.mapping = mapping
         self.space = space
         self.time = time
         self.spatial_resolution = spatial_resolution
@@ -516,6 +515,7 @@ class TileHandler:
         context = {
             "recipe": self.recipe,
             "datacube": self.datacube,
+            "mapping": self.mapping,
             "space": self.space,
             "time": self.time,
             "crs": self.crs,
