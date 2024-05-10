@@ -24,7 +24,7 @@ pip install git+https://github.com/fkroeber/gsemantique.git
 ```
 git clone https://github.com/fkroeber/gsemantique.git
 cd gsemantique
-pip install .     # install in non-editable mode
+pip install .
 ```
 
 ## Usage
