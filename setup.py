@@ -7,6 +7,7 @@ with open("Readme.md", encoding="utf-8") as file:
 # List dependencies.
 dependencies = [
     "aiohttp-retry",
+    "matplotlib",
     "multiprocess",
     "planetary-computer @ git+https://github.com/fkroeber/planetary-computer-sdk-for-python.git",
     "semantique @ git+https://github.com/fkroeber/semantique.git@merged_II",
@@ -17,7 +18,6 @@ dependencies = [
 
 # List development dependencies.
 dev_dependencies = [
-    "matplotlib",
     "pytest",
     "flake8",
     "sphinx",
