@@ -35,7 +35,7 @@ class Finder:
             ds_catalog (DatasetCatalog): Dataset catalog containing the data sets to be searched
             t_start (str): Start time of the search
             t_end (str): End time of the search
-            aoi (tbd): Area of interest for the search
+            aoi (shapely.geometry): Area of interest for the search.
             layout_file (str): Path to the datacube layout file
         """
         self.layout_file = layout_file
