@@ -45,16 +45,17 @@ class Finder:
         self.aoi = aoi
         self.params_search = {}
 
-    def search_auto(self, recipe, mapping, datacube):
+    def search_auto(self, recipe, mapping, datacube, **kwargs):
         # fake run to resolve data references
         fp = FakeProcessor(
             recipe=recipe,
             datacube=datacube,
             mapping=mapping,
             extent=xr.DataArray(),
+            **kwargs,
         )
         _ = fp.optimize().execute()
-        layer_keys = list(set(fp.cache.seq))
+        layer_keys = list(set([tuple(x) for x in fp.cache.seq]))
         # log info
         logger.info("The recipe references the following data layers:")
         for key in layer_keys:
