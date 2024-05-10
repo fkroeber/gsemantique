@@ -774,19 +774,25 @@ class TileHandler:
         # filter & mask tiles for shape geometry
         spatial_grid = []
         for tile in _spatial_grid:
+            # overlay tile with SpatialExtent
             bbox_tile = box(*tile)
             bbox_tile = gpd.GeoDataFrame(geometry=[bbox_tile], crs=crs)
+            overlay_kwargs = {
+                "right": space,
+                "how": "intersection",
+                "keep_geom_type": False,
+            }
+            # remove sliver linestrings & point geoms
+            tile_shape = bbox_tile.overlay(**overlay_kwargs)
+            tile_shape = tile_shape.explode(index_parts=True)
+            keep_idx = tile_shape["geometry"].geom_type == "Polygon"
+            tile_shape = tile_shape[keep_idx].dissolve()
+            # evaluate overlay to decide if tile is included
             if precise:
-                tile_shape = bbox_tile.overlay(
-                    space, how="intersection", keep_geom_type=False
-                ).dissolve()
                 if ((tile_shape.area / bbox_tile.area) >= ovlp_thres).iloc[0]:
                     spatial_grid.append(SpatialExtent(tile_shape))
             else:
                 if space.intersects(bbox_tile.unary_union).any():
-                    tile_shape = bbox_tile.overlay(
-                        space, how="intersection", keep_geom_type=False
-                    ).dissolve()
                     if ((tile_shape.area / bbox_tile.area) >= ovlp_thres).iloc[0]:
                         spatial_grid.append(SpatialExtent(bbox_tile))
         return spatial_grid
