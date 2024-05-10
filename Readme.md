@@ -35,7 +35,7 @@ The package contains several [Jupyter demo notebooks](./demo/). They are providi
 
 > Note that gsemantique is designed to enable mesoscale analysis of big EO data on common consumer hardware infrastructure. Still, there is a minimum of resources required when working with EO data at scale. Binder and Colab are offering very restricted resources [1, 2]. Therefore it is strongly recommended, to install the package locally and explore it this way.
 > 
-> [1] Binder guarantees at least 1GB of RAM, with a maximum of 2GB.  
+> [1] Binder sets up a JupyterLab env with 2 CPUs and a guaranteed RAM of at least 1GB (maximum of 4GB).  
 > [2] For Colab, the default CPU is an Intel Xeon CPU with 2 vCPUs (virtual CPUs) with about 12GB of RAM. 
 
 
