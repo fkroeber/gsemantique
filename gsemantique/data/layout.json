@@ -7,7 +7,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh6_hh": {
                 "name": "data",
@@ -15,7 +15,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh12_vv": {
                 "name": "data",
@@ -23,7 +23,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh12_hh": {
                 "name": "data",
@@ -31,7 +31,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh18_vv": {
                 "name": "data",
@@ -39,7 +39,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh18_hh": {
                 "name": "data",
@@ -47,7 +47,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh24_vv": {
                 "name": "data",
@@ -55,7 +55,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh24_hh": {
                 "name": "data",
@@ -63,7 +63,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh36_vv": {
                 "name": "data",
@@ -71,7 +71,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh36_hh": {
                 "name": "data",
@@ -79,7 +79,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh48_vv": {
                 "name": "data",
@@ -87,7 +87,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_coh48_hh": {
                 "name": "data",
@@ -95,7 +95,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             }
         },
         "reflectance": {
@@ -105,7 +105,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int16",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_amp_vh": {
                 "name": "data",
@@ -113,7 +113,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int16",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_amp_hh": {
                 "name": "data",
@@ -121,7 +121,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int16",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_amp_hv": {
                 "name": "data",
@@ -129,7 +129,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int16",
-                "na_vals": 0
+                "na_value": 0
             },
             "s1_inc": {
                 "name": "data",
@@ -137,7 +137,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "int8",
-                "na_vals": 0
+                "na_value": 0
             }
         },
         "hydrogeography": {
@@ -148,7 +148,7 @@
                 "values": {},
                 "src": "https://registry.opendata.aws/glo-30-hand/",
                 "dtype": "float32",
-                "na_vals": "None"
+                "na_value": "None"
             }
         }
     },
@@ -158,73 +158,97 @@
                 "name": "coastal",
                 "description": "Coastal aerosol band (~443nm; 60m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 1.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band02": {
                 "name": "blue",
                 "description": "Blue band (~494nm; 10m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 2.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band03": {
                 "name": "green",
                 "description": "Green band (~560nm; 10m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 3.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band04": {
                 "name": "red",
                 "description": "Red band (~665nm; 10m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 4.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band05": {
                 "name": "rededge1",
                 "description": "Vegetation red edge (VRE) band (~704nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 5.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band06": {
                 "name": "rededge2",
                 "description": "Vegetation red edge (VRE) band (~740nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 6.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band07": {
                 "name": "rededge3",
                 "description": "Vegetation red edge (VRE) band (~781nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 7.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band08": {
                 "name": "nir",
                 "description": "Near infrared (NIR) band (~834nm; 10m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 8.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band08A": {
                 "name": "nir08",
                 "description": "Narrow near infrared (NIR) band (~864nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 8A.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band09": {
                 "name": "nir09",
                 "description": "Water vapour band (~944nm; 60m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 9.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band11": {
                 "name": "swir16",
                 "description": "Shortwave infrared (SWIR) band (~1612nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 11.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band12": {
                 "name": "swir22",
                 "description": "Shortwave infrared (SWIR) band (~2195nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 12.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             }
         },
         "classification": {
@@ -293,7 +317,9 @@
                         "label": "snow",
                         "description": "snow"
                     }
-                ]
+                ],
+                "dtype": "int8",
+                "na_value": 0
             }
         }
     },
@@ -305,15 +331,15 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "float32",
-                "na_vals": "tbd"
+                "na_value": -32768
             },
             "s1_amp_vh": {
                 "name": "vh",
                 "description": "Gamma naught values of signal transmitted with vertical polarization and received with horizontal polarization with radiometric terrain correction applied. To convert to decibel (db) apply the following function f(x) = 10*np.log10(x).",
-                "type": "tbd",
+                "type": "continuous",
                 "values": {},
                 "dtype": "float32",
-                "na_vals": "tbd"
+                "na_value": -32768
             },
             "s1_amp_hh": {
                 "name": "hh",
@@ -321,7 +347,7 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "float32",
-                "na_vals": "tbd"
+                "na_value": -32768
             },
             "s1_amp_hv": {
                 "name": "hv",
@@ -329,158 +355,180 @@
                 "type": "continuous",
                 "values": {},
                 "dtype": "float32",
-                "na_vals": "tbd"
+                "na_value": -32768
             },
             "s2_band01": {
                 "name": "B01",
                 "description": "Coastal aerosol band (~443nm; 60m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 1.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band02": {
                 "name": "B02",
                 "description": "Blue band (~494nm; 10m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 2.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band03": {
                 "name": "B03",
                 "description": "Green band (~560nm; 10m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 3.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band04": {
                 "name": "B04",
                 "description": "Red band (~665nm; 10m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 4.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band05": {
                 "name": "B05",
                 "description": "Vegetation red edge (VRE) band (~704nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 5.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band06": {
                 "name": "B06",
                 "description": "Vegetation red edge (VRE) band (~740nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 6.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band07": {
                 "name": "B07",
                 "description": "Vegetation red edge (VRE) band (~781nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 7.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band08": {
                 "name": "B08",
                 "description": "Near infrared (NIR) band (~834nm; 10m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 8.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band08A": {
                 "name": "B8A",
                 "description": "Narrow near infrared (NIR) band (~864nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 8A.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band09": {
                 "name": "B09",
                 "description": "Water vapour band (~944nm; 60m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 9.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band11": {
                 "name": "B11",
                 "description": "Shortwave infrared (SWIR) band (~1612nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 11.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "s2_band12": {
                 "name": "B12",
                 "description": "Shortwave infrared (SWIR) band (~2195nm; 20m spatial resolution). Top of atmosphere (TOA) reflectance captured by the multi-spectral instrument (MSI) of Sentinel-2A or Sentinel-2B as band 12.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "lndst_coastal": {
                 "name": "coastal",
                 "description": "Coastal with following specs: Spatial resolution: 30 m. Center wavelength: 0.44 μm μm (OLI). Full width half max: 0.02 μm (OLI). Note: Only available for OLI (i.e. Landsat 8/9 from 2013 onwards). Scale: 0.0000275. Offset -0.2.",
-                "dtype": "int16",
                 "type": "continuous",
-                "na_value": "",
-                "values": {}
+                "values": {},
+                "dtype": "uint16",
+                "na_value": "None"
             },
             "lndst_blue": {
                 "name": "blue",
                 "description": "Visible blue with following specs: Spatial resolution: 30 m. Center wavelength: 0.49 μm (TM), 0.48 μm (ETM), 0.48 μm (OLI). Full width half max: 0.07 μm (TM), 0.07 μm (ETM), 0.06 μm (OLI). Scale: 0.0000275. Offset -0.2.",
-                "dtype": "int16",
                 "type": "continuous",
-                "na_value": "",
-                "values": {}
+                "values": {},
+                "dtype": "uint16",
+                "na_value": "None"
             },
             "lndst_green": {
                 "name": "green",
                 "description": "Visible green with following specs: Spatial resolution: 30 m. Center wavelength: 0.56 μm (TM), 0.56 μm (ETM), 0.56 μm (OLI). Full width half max: 0.08 μm (TM), 0.08 μm (ETM), 0.06 μm (OLI). Scale: 0.0000275. Offset -0.2.",
-                "dtype": "int16",
                 "type": "continuous",
-                "na_value": "",
-                "values": {}
+                "values": {},
+                "dtype": "uint16",
+                "na_value": "None"
             },
             "lndst_red": {
                 "name": "red",
                 "description": "Visible red with following specs: Spatial resolution: 30 m. Center wavelength: 0.66 μm (TM), 0.66 μm (ETM), 0.65 μm (OLI). Full width half max: 0.06 μm (TM), 0.06 μm (ETM), 0.04 μm (OLI). Scale: 0.0000275. Offset -0.2.",
-                "dtype": "int16",
                 "type": "continuous",
-                "na_value": "",
-                "values": {}
+                "values": {},
+                "dtype": "uint16",
+                "na_value": "None"
             },
             "lndst_nir08": {
                 "name": "nir08",
                 "description": "Near infrared with following specs: Spatial resolution: 30 m. Center wavelength: 0.83 μm (TM), 0.84 μm (ETM), 0.87 μm (OLI). Full width half max: 0.14 μm (TM), 0.13 μm (ETM), 0.03 μm (OLI). Scale: 0.0000275. Offset -0.2.",
-                "dtype": "int16",
                 "type": "continuous",
-                "na_value": "",
-                "values": {}
+                "values": {},
+                "dtype": "uint16",
+                "na_value": "None"
             },
             "lndst_swir16": {
                 "name": "swir16",
                 "description": "Shortwave infrared with following specs: Spatial resolution: 30 m. Center wavelength: 1.65 μm (TM), 1.65 μm (ETM), 1.61 μm (OLI). Full width half max: 0.2 μm (TM), 0.2 μm (ETM), 0.09 μm (OLI). Scale: 0.0000275. Offset -0.2.",
-                "dtype": "int16",
                 "type": "continuous",
-                "na_value": "",
-                "values": {}
+                "values": {},
+                "dtype": "uint16",
+                "na_value": "None"
             },
             "lndst_swir22": {
                 "name": "swir22",
                 "description": "Shortwave infrared with following specs: Spatial resolution: 30 m. Center wavelength: 2.22 μm (TM), 2.2 μm (ETM), 2.2 μm (OLI). Full width half max: 0.27 μm (TM), 0.28 μm (ETM), 0.19 μm (OLI).Scale: 0.0000275. Offset -0.2.",
-                "dtype": "int16",
                 "type": "continuous",
-                "na_value": "",
-                "values": {}
+                "values": {},
+                "dtype": "uint16",
+                "na_value": "None"
             },
             "lndst_lwir109": {
                 "name": "lwir11",
                 "description": "Longwave infrared / surface temperature band with following specs: Spatial resolution: 100 m. Center wavelength: 10.9 μm (OLI). Full width half: 0.59 μm (OLI). Note: Only available for OLI (i.e. Landsat 8/9 from 2013 onwards). Scale: 0.00341802. Offset 149. Unit: kelvin.",
-                "dtype": "int16",
                 "type": "continuous",
-                "na_value": "",
-                "values": {}
+                "values": {},
+                "dtype": "uint16",
+                "na_value": "None"
             },
             "lndst_lwir114": {
                 "name": "lwir",
                 "description": "Longwave infrared / surface temperature band with following specs: Spatial resolution: 100 m. Center wavelength: 11.45 μm (TM), 11.34 μm (ETM). Full width half: 2.1 μm (TM), 2.05 μm (ETM). Note: Only available for TM & ETM (i.e. Landsat 4-7). Scale: 0.00341802. Offset 149. Unit: kelvin.",
-                "dtype": "int16",
                 "type": "continuous",
-                "na_value": "",
-                "values": {}
+                "values": {},
+                "dtype": "uint16",
+                "na_value": "None"
             },
             "lndst_qa": {
                 "name": "qa_pixel",
                 "description": "Collection 2 Level-1 products 8-bit cloud quality assessment band (QA_Pixel). Spatial resolution: 30 m. Important: Different encodings are used for Landsat 4-7 and Landsat 8-9. For Landsat 4-7: Bit 0: Fill [0 = image data, 1 = fill data], Bit 1: Dilated Cloud [0 = cloud is not dilated or no cloud, 1 = cloud dilation], Bit 2: Unused [0 = no confidence level or low confidence, 1 = high confidence unused], Bit 3: Cloud [0 = cloud confidence is not high, 1 = high confidence cloud], Bit 4: Cloud Shadow [0 = cloud shadow confidence is not high, 1 = high confidence cloud shadow], Bit 5: Snow [0 = snow/ice confidence is not high, 1 = high confidence snow cover], Bit 6: Clear [0 = if cloud or dilated cloud bits are set, 1 = if cloud and dilated cloud bits are not set], Bit 7: Water [0 = land or cloud, 1 = water], Bits 8-9: Cloud Confidence [00 = no confidence level set, 01 = low confidence, 10 = medium confidence, 11 = high confidence], Bits 10-11: Cloud Shadow Confidence [00 = no confidence level set, 01 = low confidence, 10 = reserved, 11 = high confidence], Bits 12-13: Snow/Ice Confidence [00 = no confidence level set, 01 = low confidence, 10 = reserved, 11 = high confidence], Bits 14-15: Unused [These bits are not used for flagging]. For Landsat 8-9: bit 0: Fill [0 = image data, 1 = fill data]. bit 1: Dilated Cloud [0 = cloud is not dilated or no cloud, 1 = cloud dilation]. bit 2: Cirrus [0 = no confidence level or low confidence, 1 = high confidence cirrus]. bit 3: Cloud [0 = cloud confidence is not high, 1 = high confidence cloud]. bit 4: Cloud Shadow [0 = cloud shadow confidence is not high, 1 = high confidence cloud shadow]. bit 5: Snow [0 = snow/ice confidence is not high, 1 = high confidence snow cover]. bit 6: Clear [0 = cloud or dilated cloud bits are set, 1 = cloud and dilated Cloud bits are not set]. bit 7: Water [0 = land or cloud, 1 = water]. bits 8-9: Cloud Confidence [00 = for no confidence level set, 01 = low confidence, 10 = medium confidence, 11 = high confidence]. bits 10-11: Cloud Shadow Confidence [00 = no confidence level, 01 = low confidence, 10 = reserved, 11 = high confidence]. bits 12-13: Snow/Ice Confidence [00 = no confidence level, 01 = low confidence, 10 = reserved, 11 = high confidence]. bits 14-15: Cirrus Confidence [00 = no confidence level, 01 = low confidence, 10 = reserved, 11 = high confidence].",
                 "type": "nominal",
-                "dtype": "uint16",
-                "na_value": 1,
                 "values": [
                     {
                         "id": 1,
@@ -507,7 +555,9 @@
                         "label": "clear_water_oli",
                         "description": "Clear (water) with lows set on clouds (Landsat 8-9)"
                     }
-                ]
+                ],
+                "dtype": "uint16",
+                "na_value": 1
             }
         },
         "topography": {
@@ -515,13 +565,17 @@
                 "name": "elevation",
                 "description": "Generated from the Shuttle Radar Topography Mission (SRTM) data in year 2000. Interferometric SAR data from SRTM were reprocessed with an optimized hybrid processing technique in producing the data products.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
             },
             "dsm": {
                 "name": "data",
                 "description": "Digital Surface Model (DSM) which represents the surface of the Earth including buildings, infrastructure and vegetation. Based on the radar satellite data acquired during the TanDEM-X Mission 2011-2015.",
                 "type": "continuous",
-                "values": {}
+                "values": {},
+                "dtype": "float32",
+                "na_value": -32767
             }
         },
         "classification": {
@@ -590,7 +644,9 @@
                         "label": "snow",
                         "description": "snow"
                     }
-                ]
+                ],
+                "dtype": "int8",
+                "na_value": 0
             },
             "esa_lc": {
                 "name": "map",
@@ -652,7 +708,9 @@
                         "label": "moss",
                         "description": "Moss and lichen"
                     }
-                ]
+                ],
+                "dtype": "uint8",
+                "na_value": 0
             },
             "impact_lc": {
                 "name": "data",
@@ -709,7 +767,9 @@
                         "label": "rangeland",
                         "description": "Rangeland"
                     }
-                ]
+                ],
+                "dtype": "uint8",
+                "na_value": 0
             }
         },
         "burned_mapping": {
@@ -717,28 +777,30 @@
                 "name": "Burn_Date",
                 "description": "Ordinal day of burn (1-366) for each 500-m grid cell, with 0 = unburned land, -1 = unmapped due to insufficient data, and -2 = water.",
                 "type": "ordinal",
+                "values": {},
                 "dtype": "int16",
-                "values": {}
+                "na_value": "None"
             },
             "m_burn_uncertainty": {
                 "name": "Burn_Date_Uncertainty",
                 "description": "Estimated uncertainty in date of burn, in days. Unburned and unmapped grid cells will always have a value of 0 in this layer.",
                 "type": "discrete",
+                "values": {},
                 "dtype": "uint8",
-                "values": {}
+                "na_value": "None"
             },
             "m_burn_qa": {
                 "name": "QA",
                 "description": "8-bit quality assurance bit field. bit 0: 0 = water grid cell, 1 = land grid cell. bit 1: Valid data flag (0 = false, 1 = true). A value of 1 indicates that there was sufficient valid data in the reflectance time series for the grid cell to be processed. bit 2: Shortened mapping period (0 = false, 1  = true). This flag indicates that the period of reliable mapping does not encompass the full one-month product period. bit 3: Grid cell was relabeled during the contextual relabeling phase of the algorithm (0 = false, 1 = true). bit 4: Spare bit set to 0. bits 5–7: Special condition code reserved for unburned grid cells.",
                 "type": "nominal",
+                "values": {},
                 "dtype": "uint8",
-                "values": {}
+                "na_value": "None"
             },
             "w_burn_firemask": {
                 "name": "FireMask",
                 "description": "Confidence of fire.",
                 "type": "discrete",
-                "dtype": "uint8",
                 "values": [
                     {
                         "id": 0,
@@ -790,14 +852,17 @@
                         "label": "fire_high_conf",
                         "description": "Fire (high confidence, land or water)"
                     }
-                ]
+                ],
+                "dtype": "uint8",
+                "na_value": 0
             },
             "w_burn_qa": {
                 "name": "QA",
                 "description": "Pixel quality indicators. Bits 0-1: land/water state (00 = water, 01 = coast, 10 = land, 11 = missing data). Bit 2: day/night observation (0 = night, 1 = day).",
                 "type": "nominal",
+                "values": {},
                 "dtype": "uint8",
-                "values": {}
+                "na_value": "None"
             }
         },
         "hydrogeography": {
@@ -805,28 +870,30 @@
                 "name": "change",
                 "description": "Change in water occurrence between the two periods (1984-1999) and (2000-2020).",
                 "type": "continuous",
+                "values": {},
                 "dtype": "uint8",
-                "values": {}
+                "na_value": 255
             },
             "extent": {
                 "name": "extent",
                 "description": "Binary indicator of whether water was ever present (from 1984-2020).",
                 "type": "binary",
+                "values": {},
                 "dtype": "binary",
-                "values": {}
+                "na_value": "None"
             },
             "occurrence": {
                 "name": "occurrence",
                 "description": "Frequency with which water was present from March 1984 to December 2020.",
                 "type": "continuous",
+                "values": {},
                 "dtype": "uint8",
-                "values": {}
+                "na_value": 255
             },
             "transitions": {
                 "name": "transitions",
                 "description": "Categorical change in surface water status from 1984 to 2020.",
                 "type": "discrete",
-                "dtype": "uint8",
                 "values": [
                     {
                         "id": 1,
@@ -878,7 +945,9 @@
                         "label": "ephemeral seasonal",
                         "description": "Ephemeral seasonal"
                     }
-                ]
+                ],
+                "dtype": "uint8",
+                "na_value": 255
             }
         }
     }
