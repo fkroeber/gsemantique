@@ -11,7 +11,7 @@ dependencies = [
     "multiprocess",
     "planetary-computer @ git+https://github.com/fkroeber/planetary-computer-sdk-for-python.git",
     "semantique @ git+https://github.com/fkroeber/semantique.git@merged_II",
-    "stac-asset",
+    "stac-asset @ git+https://github.com/fkroeber/stac-asset.git@dev",
     "stackstac @ git+https://github.com/fkroeber/stackstac.git",
     "tqdm",
 ]
