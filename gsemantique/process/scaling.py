@@ -237,6 +237,7 @@ class TileHandler:
                 self.chunksize_s,
                 self.crs,
                 precise=precise_shp,
+                verbose=self.verbose,
             )
 
     def execute(self):
@@ -246,7 +247,10 @@ class TileHandler:
 
         # B) eval recipe & postprocess in tile-wise manner
         for i, tile in tqdm(
-            enumerate(self.grid), disable=not self.verbose, total=len(self.grid)
+            enumerate(self.grid),
+            disable=not self.verbose,
+            total=len(self.grid),
+            desc="executing recipe in tiled manner",
         ):
             # run workflow for single tile
             context = self._create_context(
@@ -738,11 +742,7 @@ class TileHandler:
 
     @staticmethod
     def create_spatial_grid(
-        space,
-        spatial_resolution,
-        chunksize_s,
-        crs,
-        precise=True,
+        space, spatial_resolution, chunksize_s, crs, precise=True, verbose=True
     ):
         # create coarse spatial grid
         coarse_res = list(np.array(spatial_resolution) * chunksize_s)
@@ -771,30 +771,43 @@ class TileHandler:
         space.geometry = space.geometry.apply(
             lambda x: x.buffer(pxl_radius) if not x.area else x
         )
+        # preprocess - create spatial index for performance improvements
+        space_sindex = space.sindex
         # filter & mask tiles for shape geometry
         spatial_grid = []
-        for tile in _spatial_grid:
-            # overlay tile with SpatialExtent
-            bbox_tile = box(*tile)
-            bbox_tile = gpd.GeoDataFrame(geometry=[bbox_tile], crs=crs)
-            overlay_kwargs = {
-                "right": space,
-                "how": "intersection",
-                "keep_geom_type": False,
-            }
-            # remove sliver linestrings & point geoms
-            tile_shape = bbox_tile.overlay(**overlay_kwargs)
-            tile_shape = tile_shape.explode(index_parts=True)
-            keep_idx = tile_shape["geometry"].geom_type == "Polygon"
-            tile_shape = tile_shape[keep_idx].dissolve()
-            # evaluate overlay to decide if tile is included
-            if precise:
-                if ((tile_shape.area / bbox_tile.area) >= ovlp_thres).iloc[0]:
-                    spatial_grid.append(SpatialExtent(tile_shape))
-            else:
-                if space.intersects(bbox_tile.unary_union).any():
+        bbox_tile = gpd.GeoDataFrame(index=[0], columns=["geometry"], crs=crs)
+        for tile in tqdm(
+            _spatial_grid,
+            disable=not verbose,
+            total=len(_spatial_grid),
+            desc="creating spatial grid",
+        ):
+            # construct gdf for given tile
+            bbox_tile.at[0, "geometry"] = box(*tile)
+            # pre-filter possible matches (pm) based on spatial index
+            pm_idxs = list(space_sindex.intersection(bbox_tile.geometry[0].bounds))
+            pms = space.iloc[pm_idxs]
+            pms = pms[pms.intersects(bbox_tile.geometry[0])]
+            # precise overlay tile with SpatialExtent
+            if not pms.empty:
+                overlay_kwargs = {
+                    "right": space,
+                    "how": "intersection",
+                    "keep_geom_type": False,
+                }
+                tile_shape = bbox_tile.overlay(**overlay_kwargs)
+                # remove sliver linestrings & point geoms
+                tile_shape = tile_shape.explode(index_parts=True)
+                keep_idx = tile_shape["geometry"].geom_type == "Polygon"
+                tile_shape = tile_shape[keep_idx].dissolve()
+                # evaluate overlay to decide if tile is included
+                if precise:
                     if ((tile_shape.area / bbox_tile.area) >= ovlp_thres).iloc[0]:
-                        spatial_grid.append(SpatialExtent(bbox_tile))
+                        spatial_grid.append(SpatialExtent(tile_shape))
+                else:
+                    if space.intersects(bbox_tile.unary_union).any():
+                        if ((tile_shape.area / bbox_tile.area) >= ovlp_thres).iloc[0]:
+                            spatial_grid.append(SpatialExtent(bbox_tile))
         return spatial_grid
 
     @staticmethod
@@ -988,7 +1001,11 @@ class TileHandlerParallel(TileHandler):
             with Pool(processes=self.n_procs) as pool:
                 func = lambda idx: self._execute_tile(idx, shared_self)
                 tile_results = list(
-                    tqdm(pool.imap(func, grid_idxs), total=len(grid_idxs))
+                    tqdm(
+                        pool.imap(func, grid_idxs),
+                        total=len(grid_idxs),
+                        desc="executing recipe in tiled manner",
+                    )
                 )
         # flatten results
         self.tile_results = [x for sl in tile_results for x in sl]
