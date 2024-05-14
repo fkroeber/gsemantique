@@ -7,7 +7,9 @@ import planetary_computer as pc
 import pystac
 import xarray as xr
 from pystac_client import Client
+from pystac_client.stac_api_io import StacApiIO
 from semantique.processor.core import FakeProcessor
+from urllib3 import Retry
 from .datasets import Dataset
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -105,13 +107,26 @@ class Finder:
         """
         Performs the data search based on the retrieved params
         """
+        # init retry
+        retry = Retry(
+            total=5,
+            backoff_factor=1,
+            status_forcelist=[408, 502, 503, 504],
+            allowed_methods=None,
+        )
+
         # init search client
         if self.params_search["provider"] == "Planet":
             catalog = Client.open(
-                self.params_search["catalog"], modifier=pc.sign_inplace
+                self.params_search["catalog"],
+                modifier=pc.sign_inplace,
+                stac_io=StacApiIO(max_retries=retry, timeout=1800),
             )
         else:
-            catalog = Client.open(self.params_search["catalog"])
+            catalog = Client.open(
+                self.params_search["catalog"],
+                stac_io=StacApiIO(max_retries=retry, timeout=1800),
+            )
 
         # make search
         query = catalog.search(
