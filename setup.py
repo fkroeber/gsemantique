@@ -9,6 +9,7 @@ dependencies = [
     "aiohttp-retry",
     "matplotlib",
     "multiprocess",
+    "pandas>=2.0.0",
     "planetary-computer @ git+https://github.com/fkroeber/planetary-computer-sdk-for-python.git",
     "semantique @ git+https://github.com/fkroeber/semantique.git@latest",
     "stac-asset",
