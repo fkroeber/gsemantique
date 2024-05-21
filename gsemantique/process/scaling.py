@@ -20,6 +20,7 @@ from tqdm import tqdm
 
 import semantique as sq
 from semantique import exceptions
+from semantique.datacube import STACCube
 from semantique.extent import SpatialExtent, TemporalExtent
 from semantique.processor.arrays import Collection
 from semantique.processor.core import QueryProcessor
@@ -511,7 +512,7 @@ class TileHandler:
     def _continuous_signing(self):
         """Calling resign function in a loop."""
         while not self.signing_thread_event.is_set():
-            self.datacube.src = self.datacube._sign_metadata(list(self.datacube.src))
+            self.datacube.src = STACCube._sign_metadata(list(self.datacube.src))
             time.sleep(1)
 
     def _create_context(self, **kwargs):
