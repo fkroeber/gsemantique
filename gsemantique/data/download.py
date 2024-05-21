@@ -47,7 +47,7 @@ class Downloader:
             self.out_dir = f"data_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         else:
             self.out_dir = out_dir
-        os.makedirs(self.out_dir)
+        os.makedirs(self.out_dir, exist_ok=True)
 
     def run(self, reauth=True, by_collection=True):
         """
