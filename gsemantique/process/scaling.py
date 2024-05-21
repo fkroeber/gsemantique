@@ -1045,6 +1045,7 @@ class TileHandlerParallel(TileHandler):
                 if th.merge_mode == "merged":
                     out = list(response)
                 else:
+                    out = []
                     for layer in response.keys():
                         out_dir = os.path.join(th.out_dir, layer)
                         out_path = os.path.join(out_dir, f"{tile_idx}.tif")
