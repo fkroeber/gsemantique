@@ -7,6 +7,7 @@ with open("Readme.md", encoding="utf-8") as file:
 # List dependencies.
 dependencies = [
     "aiohttp-retry",
+    "ipykernel",
     "matplotlib",
     "multiprocess",
     "pandas>=2.0.0",
