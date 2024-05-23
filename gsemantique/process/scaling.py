@@ -152,19 +152,18 @@ class TileHandler:
         # retrieve tiling dimension
         self.get_tile_dim()
         # check merge- & outdir-dependent prerequisites
-        if not self.merge_mode and self.out_dir:
-            raise ValueError(
-                f"'out_dir' must be set to None when merge is set to {self.merge_mode}."
-            )
-        elif "vrt" in self.merge_mode and not self.out_dir:
-            raise ValueError(
-                f"An 'out_dir' argument must be provided when merge is set to {self.merge_mode}."
-            )
-        elif "vrt" in self.merge_mode and self.tile_dim == sq.dimensions.TIME:
-            raise NotImplementedError(
-                "If tiling is done along the temporal dimension, 'vrt_*' is "
-                "currently not available as a merge strategy."
-            )
+        if self.merge_mode:
+            if "vrt" in self.merge_mode and not self.out_dir:
+                raise ValueError(
+                    f"An 'out_dir' argument must be provided when merge is set to {self.merge_mode}."
+                )
+            elif "vrt" in self.merge_mode and self.tile_dim == sq.dimensions.TIME:
+                raise NotImplementedError(
+                    "If tiling is done along the temporal dimension, 'vrt_*' is "
+                    "currently not available as a merge strategy."
+                )
+        else:
+            self.out_dir = None
         # create output directory
         if self.out_dir:
             os.makedirs(self.out_dir)
@@ -282,10 +281,11 @@ class TileHandler:
                             self.tile_results.append(out_path)
 
         # C) optional merge of results
-        if self.merge_mode == "merged":
-            self.merge_single()
-        elif "vrt" in self.merge_mode:
-            self.merge_vrt()
+        if self.merge_mode: 
+            if self.merge_mode == "merged":
+                self.merge_single()
+            elif "vrt" in self.merge_mode:
+                self.merge_vrt()
 
     def merge_single(self):
         """Merge results obtained for individual tiles by stitching them
@@ -1011,10 +1011,11 @@ class TileHandlerParallel(TileHandler):
         # flatten results
         self.tile_results = [x for sl in tile_results for x in sl]
         # merge results
-        if self.merge_mode == "merged":
-            self.merge_single()
-        elif "vrt" in self.merge_mode:
-            self.merge_vrt()
+        if self.merge_mode:
+            if self.merge_mode == "merged":
+                self.merge_single()
+            elif "vrt" in self.merge_mode:
+                self.merge_vrt()
 
     def _execute_tile(self, tile_idx, shared_self):
         # get shared instance
