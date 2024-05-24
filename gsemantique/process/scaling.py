@@ -12,6 +12,7 @@ import warnings
 import xarray as xr
 
 from copy import deepcopy
+from enum import Enum
 from itertools import product
 from multiprocess import Pool, Manager
 from shapely.geometry import box
@@ -25,7 +26,11 @@ from semantique.extent import SpatialExtent, TemporalExtent
 from semantique.processor.arrays import Collection
 from semantique.processor.core import QueryProcessor
 from .vrt import virtual_merge
-
+class MergeMode(Enum):
+    NONE = None
+    MERGED = "merged"
+    VRT_SHAPES = "vrt_shapes"
+    VRT_TILES = "vrt_tiles"
 
 class TileHandler:
     """Handler for executing a query in a (spatially or temporally) tiled manner.
@@ -152,6 +157,10 @@ class TileHandler:
         # retrieve tiling dimension
         self.get_tile_dim()
         # check merge- & outdir-dependent prerequisites
+        if merge_mode not in {mode.value for mode in MergeMode}:
+            raise ValueError(
+                f"Invalid merge_mode: {merge_mode}. Must be one of {[mode.value for mode in MergeMode]}"
+            )
         if self.merge_mode:
             if "vrt" in self.merge_mode and not self.out_dir:
                 raise ValueError(
