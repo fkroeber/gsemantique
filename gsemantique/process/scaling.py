@@ -281,7 +281,7 @@ class TileHandler:
                             self.tile_results.append(out_path)
 
         # C) optional merge of results
-        if self.merge_mode: 
+        if self.merge_mode:
             if self.merge_mode == "merged":
                 self.merge_single()
             elif "vrt" in self.merge_mode:
@@ -307,13 +307,14 @@ class TileHandler:
         self.tile_results = joint_res
         # write to out_dir
         if self.out_dir:
-            for k, v in self.tile_results.items():
+            for name, arr in self.tile_results.items():
                 if self.tile_dim == sq.dimensions.TIME:
-                    out_path = os.path.join(self.out_dir, f"{k}.nc")
-                    v.to_netcdf(out_path)
+                    arr.attrs = {}
+                    out_path = os.path.join(self.out_dir, f"{name}.nc")
+                    arr.to_netcdf(out_path)
                 elif self.tile_dim == sq.dimensions.SPACE:
-                    out_path = os.path.join(self.out_dir, f"{k}.tif")
-                    v.rio.to_raster(out_path)
+                    out_path = os.path.join(self.out_dir, f"{name}.tif")
+                    arr.rio.to_raster(out_path)
 
     def merge_vrt(self):
         """Merges results obtained for individual tiles by creating a virtual raster.
