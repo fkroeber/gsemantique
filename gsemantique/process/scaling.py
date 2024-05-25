@@ -26,11 +26,14 @@ from semantique.extent import SpatialExtent, TemporalExtent
 from semantique.processor.arrays import Collection
 from semantique.processor.core import QueryProcessor
 from .vrt import virtual_merge
+
+
 class MergeMode(Enum):
     NONE = None
     MERGED = "merged"
     VRT_SHAPES = "vrt_shapes"
     VRT_TILES = "vrt_tiles"
+
 
 class TileHandler:
     """Handler for executing a query in a (spatially or temporally) tiled manner.
@@ -1018,14 +1021,16 @@ class TileHandlerParallel(TileHandler):
                         desc="executing recipe in tiled manner",
                     )
                 )
-        # flatten results
-        self.tile_results = [x for sl in tile_results for x in sl]
         # merge results
         if self.merge_mode:
             if self.merge_mode == "merged":
+                self.tile_results = tile_results
                 self.merge_single()
             elif "vrt" in self.merge_mode:
+                self.tile_results = [x for sl in tile_results for x in sl]
                 self.merge_vrt()
+        else:
+            self.tile_results = tile_results
 
     def _execute_tile(self, tile_idx, shared_self):
         # get shared instance
@@ -1045,7 +1050,7 @@ class TileHandlerParallel(TileHandler):
         # handle response
         if response:
             if not th.merge_mode:
-                out = list(response)
+                out = response
             else:
                 # postprocess response
                 if th.tile_dim == sq.dimensions.TIME:
@@ -1054,7 +1059,7 @@ class TileHandlerParallel(TileHandler):
                     response = th._postprocess_spatial(response)
                 # write result (in-memory or to disk)
                 if th.merge_mode == "merged":
-                    out = list(response)
+                    out = response
                 else:
                     out = []
                     for layer in response.keys():
