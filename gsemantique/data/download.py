@@ -49,17 +49,13 @@ class Downloader:
             self.out_dir = out_dir
         os.makedirs(self.out_dir, exist_ok=True)
 
-    def run(self, reauth=True, by_collection=True):
+    def run(self, by_collection=True):
         """
         Runs the download process.
 
         Args:
             by_collection (bool): Whether to download items in a grouped manner.
-            reauth (bool): Whether to reauthenticate the items prior to downloading them.
         """
-        # reauthentication of items
-        if reauth:
-            self.item_coll = STACCube._sign_metadata(list(self.item_coll))
         # download process
         if by_collection:
             self._download_grouped()
@@ -157,7 +153,7 @@ class Downloader:
         for idx, row in grouped_df.iterrows():
             print(f"{row['collection']} (collection {idx+1}/{len(grouped_df)})")
             nest_asyncio.apply()
-            item_coll = deepcopy(pystac.ItemCollection(row["item"]))
+            item_coll = pystac.ItemCollection(row["item"])
             dwl = STACDownloader(
                 item_coll=item_coll,
                 out_dir=os.path.join(self.out_dir, row["collection"]),
@@ -176,7 +172,7 @@ class Downloader:
         """
         nest_asyncio.apply()
         dwl = STACDownloader(
-            item_coll=deepcopy(self.item_coll), out_dir=self.out_dir, **self.kwargs
+            item_coll=self.item_coll, out_dir=self.out_dir, **self.kwargs
         )
         asyncio.run(dwl.run())
 
@@ -230,7 +226,7 @@ class Downloader:
 
 
 class STACDownloader:
-    def __init__(self, item_coll, assets=None, out_dir=None, **kwargs):
+    def __init__(self, item_coll, assets=None, out_dir=None, reauth=True, **kwargs):
         """
         Generic class downloading specified assets for a given item collection.
 
@@ -241,10 +237,12 @@ class STACDownloader:
                 which downloads all assets.
             out_dir (str): The directory to download the files to. If not specified,
                 a new directory will be created with the current timestamp.
+            reauth (bool): Whether to reauthenticate the items prior to downloading them.
             **kwargs (dict): Keyword arguments forwarded to ._async_download().
         """
         self.item_coll = item_coll
         self.assets = assets
+        self.reauth = reauth
         self.kwargs = kwargs
         if not out_dir:
             self.out_dir = f"data_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -268,7 +266,7 @@ class STACDownloader:
                 Used to estimate the size of the download.
             attempts (int): The number of download attempts to make before failing.
         """
-        # set up download parameters
+        # Set up download parameters
         opt_retry = ExponentialRetry(attempts)
         opt_timeout = aiohttp.client.ClientTimeout(total=3600)
         stac_config = dict(warn=True)
@@ -276,15 +274,19 @@ class STACDownloader:
             stac_config["include"] = self.assets
         stac_config = stac_asset.Config(**stac_config)
 
-        # preview run to estimate size
+        # Preview run to estimate size
         if len(self.item_coll) >= pre_n:
             print("Estimating size of download...")
+
+            # Subsample items for preview run
             np.random.seed(42)
             pre_coll = np.random.choice(self.item_coll, size=pre_n, replace=False)
             pre_coll = pystac.ItemCollection(items=pre_coll)
+            if self.reauth:
+                pre_coll = STACCube._sign_metadata(list(pre_coll))
 
+            # Perform download for subsample
             with TemporaryDirectory() as temp_dir:
-                # Perform the download
                 await stac_asset.download_item_collection(
                     item_collection=pre_coll,
                     directory=temp_dir,
@@ -306,10 +308,10 @@ class STACDownloader:
                     ],
                 )
 
-                # clean directory
+                # Clean directory
                 self._remove_empty_items(temp_dir)
 
-                # evaluate size
+                # Evaluate size
                 n_items = len(os.listdir(temp_dir))
                 mean_size = (
                     STACDownloader._get_dir_size(temp_dir)
@@ -332,28 +334,37 @@ class STACDownloader:
             self._async_message_handling(messages, len(self.item_coll), self.out_dir)
         )
 
-        # Downloading the item collection
-        await stac_asset.download_item_collection(
-            item_collection=self.item_coll,
-            directory=self.out_dir,
-            keep_non_downloaded=False,
-            config=stac_config,
-            clients=[
-                HttpClient(
-                    RetryClient(
-                        aiohttp.ClientSession(timeout=opt_timeout),
-                        retry_options=opt_retry,
-                    )
-                ),
-                PlanetaryComputerClient(
-                    RetryClient(
-                        aiohttp.ClientSession(timeout=opt_timeout),
-                        retry_options=opt_retry,
-                    )
-                ),
-            ],
-            messages=messages,
-        )
+        # Downloading the item collection in batched manner
+        # reasons
+        # a) avoidance of throttling by the client/server
+        # b) reauth possibilities
+        for i in range(0, len(self.item_coll), 1000):
+            batch = self.item_coll[i : i + 1000]
+            if self.reauth:
+                batch = STACCube._sign_metadata(list(batch))
+            else:
+                batch = pystac.ItemCollection(items=batch)
+            await stac_asset.download_item_collection(
+                item_collection=batch,
+                directory=self.out_dir,
+                keep_non_downloaded=False,
+                config=stac_config,
+                clients=[
+                    HttpClient(
+                        RetryClient(
+                            aiohttp.ClientSession(timeout=opt_timeout),
+                            retry_options=opt_retry,
+                        )
+                    ),
+                    PlanetaryComputerClient(
+                        RetryClient(
+                            aiohttp.ClientSession(timeout=opt_timeout),
+                            retry_options=opt_retry,
+                        )
+                    ),
+                ],
+                messages=messages,
+            )
 
         # Signal the message handler to stop
         await messages.put(None)
