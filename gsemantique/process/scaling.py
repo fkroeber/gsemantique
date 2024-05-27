@@ -293,11 +293,12 @@ class TileHandler:
                             self.tile_results.append(out_path)
 
         # C) optional merge of results
-        if self.merge_mode:
-            if self.merge_mode == "merged":
-                self.merge_single()
-            elif "vrt" in self.merge_mode:
-                self.merge_vrt()
+        if self.tile_results:
+            if self.merge_mode:
+                if self.merge_mode == "merged":
+                    self.merge_single()
+                elif "vrt" in self.merge_mode:
+                    self.merge_vrt()
 
     def merge_single(self):
         """Merge results obtained for individual tiles by stitching them
@@ -388,6 +389,10 @@ class TileHandler:
         tile_idx = 0
         valid_response = False
         while not valid_response:
+            if tile_idx >= len(self.grid):
+                print("For none of the tiles a valid response could be calculated.")
+                print("Check if the input data is within the spatio-temporal extent.")
+                break
             tile = self.grid[tile_idx]
             context = self._create_context(
                 **{self.tile_dim: tile}, preview=True, cache=deepcopy(self.cache)
@@ -396,137 +401,141 @@ class TileHandler:
             valid_response = True if response else False
             tile_idx += 1
 
-        # postprocess response
-        if self.tile_dim == sq.dimensions.TIME:
-            response = self._postprocess_temporal(response)
-        elif self.tile_dim == sq.dimensions.SPACE:
-            response = self._postprocess_spatial(response)
+        if valid_response:
+            # postprocess response
+            if self.tile_dim == sq.dimensions.TIME:
+                response = self._postprocess_temporal(response)
+            elif self.tile_dim == sq.dimensions.SPACE:
+                response = self._postprocess_spatial(response)
 
-        # get estimates based on preview run
-        if self.tile_dim == sq.dimensions.TIME:
-            print(time_info)
-        elif self.tile_dim == sq.dimensions.SPACE:
-            print(space_info)
+            # get estimates based on preview run
+            if self.tile_dim == sq.dimensions.TIME:
+                print(time_info)
+            elif self.tile_dim == sq.dimensions.SPACE:
+                print(space_info)
 
-            # retrieve amount of pixels for given spatial extent
-            total_bbox = self.space._features.to_crs(self.crs).total_bounds
-            width = total_bbox[2] - total_bbox[0]
-            height = total_bbox[3] - total_bbox[1]
-            num_pixels_x = int(np.ceil(width / abs(self.spatial_resolution[0])))
-            num_pixels_y = int(np.ceil(height / abs(self.spatial_resolution[1])))
-            xy_pixels = num_pixels_x * num_pixels_y
+                # retrieve amount of pixels for given spatial extent
+                total_bbox = self.space._features.to_crs(self.crs).total_bounds
+                width = total_bbox[2] - total_bbox[0]
+                height = total_bbox[3] - total_bbox[1]
+                num_pixels_x = int(np.ceil(width / abs(self.spatial_resolution[0])))
+                num_pixels_y = int(np.ceil(height / abs(self.spatial_resolution[1])))
+                xy_pixels = num_pixels_x * num_pixels_y
 
-            # initialise dict to store layer information
-            lyrs_info = {}
-            for layer, arr in response.items():
-                # compile general layer information
-                lyr_info = {}
-                lyr_info["dtype"] = arr.dtype
-                lyr_info["res"] = self.spatial_resolution
-                lyr_info["crs"] = self.crs
-                # get array sizes (spatially & others)
-                xy_dims = [sq.dimensions.X, sq.dimensions.Y]
-                arr_xy_dims = [x for x in arr.dims if x in xy_dims]
-                arr_z_dims = [x for x in arr.dims if x not in xy_dims]
-                arr_xy = arr.isel(**{dim: 0 for dim in arr_z_dims})
-                arr_z = arr.isel(**{dim: 0 for dim in arr_xy_dims})
-                # extrapolate layer information for different merging strategies
-                lyr_info["merge"] = {}
-                # a) no merge
-                scale = len(self.grid) * (self.chunksize_s**2) / arr_xy.size
-                lyr_info["merge"]["None"] = {}
-                lyr_info["merge"]["None"]["n"] = len(self.grid)
-                lyr_info["merge"]["None"]["size"] = scale * arr.nbytes / (1024**3)
-                lyr_info["merge"]["None"]["shape"] = (
-                    *arr_z.shape,
-                    self.chunksize_s,
-                    self.chunksize_s,
-                )
-                # b) vrt
-                vrt_scales = [4, 8, 16, 32, 64, 128, 256, 512]
-                size_tiles = lyr_info["merge"]["None"]["size"]
-                size_vrt = sum(
-                    [
-                        arr.nbytes * xy_pixels / arr_xy.size / (1024**3) / (x**2)
-                        for x in vrt_scales
-                    ]
-                )
-                lyr_info["merge"]["vrt_*"] = {}
-                lyr_info["merge"]["vrt_*"]["n"] = len(self.grid)
-                lyr_info["merge"]["vrt_*"]["size"] = size_tiles + size_vrt
-                lyr_info["merge"]["vrt_*"]["shape"] = (
-                    *arr_z.shape,
-                    self.chunksize_s,
-                    self.chunksize_s,
-                )
-                # c) merge into single array
-                scale = xy_pixels / arr_xy.size
-                lyr_info["merge"]["merged"] = {}
-                lyr_info["merge"]["merged"]["n"] = 1
-                lyr_info["merge"]["merged"]["size"] = scale * arr.nbytes / (1024**3)
-                lyr_info["merge"]["merged"]["shape"] = (
-                    *arr_z.shape,
-                    num_pixels_x,
-                    num_pixels_y,
-                )
-                lyrs_info[layer] = lyr_info
+                # initialise dict to store layer information
+                lyrs_info = {}
+                for layer, arr in response.items():
+                    # compile general layer information
+                    lyr_info = {}
+                    lyr_info["dtype"] = arr.dtype
+                    lyr_info["res"] = self.spatial_resolution
+                    lyr_info["crs"] = self.crs
+                    # get array sizes (spatially & others)
+                    xy_dims = [sq.dimensions.X, sq.dimensions.Y]
+                    arr_xy_dims = [x for x in arr.dims if x in xy_dims]
+                    arr_z_dims = [x for x in arr.dims if x not in xy_dims]
+                    arr_xy = arr.isel(**{dim: 0 for dim in arr_z_dims})
+                    arr_z = arr.isel(**{dim: 0 for dim in arr_xy_dims})
+                    # extrapolate layer information for different merging strategies
+                    lyr_info["merge"] = {}
+                    # a) no merge
+                    scale = len(self.grid) * (self.chunksize_s**2) / arr_xy.size
+                    lyr_info["merge"]["None"] = {}
+                    lyr_info["merge"]["None"]["n"] = len(self.grid)
+                    lyr_info["merge"]["None"]["size"] = scale * arr.nbytes / (1024**3)
+                    lyr_info["merge"]["None"]["shape"] = (
+                        *arr_z.shape,
+                        self.chunksize_s,
+                        self.chunksize_s,
+                    )
+                    # b) vrt
+                    vrt_scales = [4, 8, 16, 32, 64, 128, 256, 512]
+                    size_tiles = lyr_info["merge"]["None"]["size"]
+                    size_vrt = sum(
+                        [
+                            arr.nbytes * xy_pixels / arr_xy.size / (1024**3) / (x**2)
+                            for x in vrt_scales
+                        ]
+                    )
+                    lyr_info["merge"]["vrt_*"] = {}
+                    lyr_info["merge"]["vrt_*"]["n"] = len(self.grid)
+                    lyr_info["merge"]["vrt_*"]["size"] = size_tiles + size_vrt
+                    lyr_info["merge"]["vrt_*"]["shape"] = (
+                        *arr_z.shape,
+                        self.chunksize_s,
+                        self.chunksize_s,
+                    )
+                    # c) merge into single array
+                    scale = xy_pixels / arr_xy.size
+                    lyr_info["merge"]["merged"] = {}
+                    lyr_info["merge"]["merged"]["n"] = 1
+                    lyr_info["merge"]["merged"]["size"] = scale * arr.nbytes / (1024**3)
+                    lyr_info["merge"]["merged"]["shape"] = (
+                        *arr_z.shape,
+                        num_pixels_x,
+                        num_pixels_y,
+                    )
+                    lyrs_info[layer] = lyr_info
 
-            # print general layer information
-            max_l_lyr = max(len(r) for r in lyrs_info.keys())
+                # print general layer information
+                max_l_lyr = max(len(r) for r in lyrs_info.keys())
 
-            # part a) general information
-            max_l_res = max([len(str(info["res"])) for lyr, info in lyrs_info.items()])
-            line_l = max_l_lyr + max_l_res + 19
-            print(line_l * "-")
-            print("General layer info")
-            print(line_l * "-")
-            print(
-                f"{'layer':{max_l_lyr}} : {'dtype':{9}} {'crs':{5}} {'res':{max_l_res}}"
-            )
-            print(line_l * "-")
-            for lyr, info in lyrs_info.items():
-                print(
-                    f"{lyr:{max_l_lyr}} : {str(info['dtype']):{9}} "
-                    f"{str(info['crs']):{5}} {str(info['res']):{max_l_res}}"
+                # part a) general information
+                max_l_res = max(
+                    [len(str(info["res"])) for lyr, info in lyrs_info.items()]
                 )
-            print(line_l * "-")
-            print("")
-
-            # part b) merge strategy dependend information
-            for merge in lyrs_info[list(lyrs_info.keys())[0]]["merge"].keys():
-                total_n = sum(
-                    [info["merge"][merge]["n"] for info in lyrs_info.values()]
-                )
-                total_size = sum(
-                    [info["merge"][merge]["size"] for info in lyrs_info.values()]
-                )
-                shapes = [
-                    str(info["merge"][merge]["shape"]) for info in lyrs_info.values()
-                ]
-                max_l_n = len(f"{total_n}")
-                max_l_size = len(f"{total_size:.2f}")
-                max_l_shape = max([len(x) for x in shapes])
-                line_l = max_l_lyr + max_l_n + max_l_size + max_l_shape + 18
+                line_l = max_l_lyr + max_l_res + 19
                 print(line_l * "-")
-                print(f"Scenario: 'merge' = {merge}")
+                print("General layer info")
                 print(line_l * "-")
                 print(
-                    f"{'layer':{max_l_lyr}} : {'size':^{max_l_size+3}}  "
-                    f"{'tile n':^{max_l_n+8}}  {'tile shape':^{max_l_shape}}"
+                    f"{'layer':{max_l_lyr}} : {'dtype':{9}} {'crs':{5}} {'res':{max_l_res}}"
                 )
                 print(line_l * "-")
                 for lyr, info in lyrs_info.items():
-                    lyr_info = info["merge"][merge]
                     print(
-                        f"{lyr:{max_l_lyr}} : {lyr_info['size']:>{max_l_size}.2f} Gb  "
-                        f"{lyr_info['n']:>{max_l_n}} tile(s)  {str(lyr_info['shape']):>{max_l_shape}}"
+                        f"{lyr:{max_l_lyr}} : {str(info['dtype']):{9}} "
+                        f"{str(info['crs']):{5}} {str(info['res']):{max_l_res}}"
                     )
                 print(line_l * "-")
-                print(
-                    f"{'Total':{max_l_lyr}}   {total_size:{max_l_size}.2f} Gb  {total_n:{max_l_n}} tile(s)"
-                )
-                print(line_l * "-")
                 print("")
+
+                # part b) merge strategy dependend information
+                for merge in lyrs_info[list(lyrs_info.keys())[0]]["merge"].keys():
+                    total_n = sum(
+                        [info["merge"][merge]["n"] for info in lyrs_info.values()]
+                    )
+                    total_size = sum(
+                        [info["merge"][merge]["size"] for info in lyrs_info.values()]
+                    )
+                    shapes = [
+                        str(info["merge"][merge]["shape"])
+                        for info in lyrs_info.values()
+                    ]
+                    max_l_n = len(f"{total_n}")
+                    max_l_size = len(f"{total_size:.2f}")
+                    max_l_shape = max([len(x) for x in shapes])
+                    line_l = max_l_lyr + max_l_n + max_l_size + max_l_shape + 18
+                    print(line_l * "-")
+                    print(f"Scenario: 'merge' = {merge}")
+                    print(line_l * "-")
+                    print(
+                        f"{'layer':{max_l_lyr}} : {'size':^{max_l_size+3}}  "
+                        f"{'tile n':^{max_l_n+8}}  {'tile shape':^{max_l_shape}}"
+                    )
+                    print(line_l * "-")
+                    for lyr, info in lyrs_info.items():
+                        lyr_info = info["merge"][merge]
+                        print(
+                            f"{lyr:{max_l_lyr}} : {lyr_info['size']:>{max_l_size}.2f} Gb  "
+                            f"{lyr_info['n']:>{max_l_n}} tile(s)  {str(lyr_info['shape']):>{max_l_shape}}"
+                        )
+                    print(line_l * "-")
+                    print(
+                        f"{'Total':{max_l_lyr}}   {total_size:{max_l_size}.2f} Gb  {total_n:{max_l_n}} tile(s)"
+                    )
+                    print(line_l * "-")
+                    print("")
 
     def _continuous_signing(self):
         """Calling resign function in a loop."""
@@ -1029,15 +1038,16 @@ class TileHandlerParallel(TileHandler):
                 )
                 tile_results = [x for x in tile_results if x is not None]
         # merge results
-        if self.merge_mode:
-            if self.merge_mode == "merged":
+        if self.tile_results:
+            if self.merge_mode:
+                if self.merge_mode == "merged":
+                    self.tile_results = tile_results
+                    self.merge_single()
+                elif "vrt" in self.merge_mode:
+                    self.tile_results = [x for sl in tile_results for x in sl]
+                    self.merge_vrt()
+            else:
                 self.tile_results = tile_results
-                self.merge_single()
-            elif "vrt" in self.merge_mode:
-                self.tile_results = [x for sl in tile_results for x in sl]
-                self.merge_vrt()
-        else:
-            self.tile_results = tile_results
 
     def _execute_tile(self, tile_idx, shared_self):
         # get shared instance
