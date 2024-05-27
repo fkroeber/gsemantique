@@ -1038,7 +1038,7 @@ class TileHandlerParallel(TileHandler):
                 )
                 tile_results = [x for x in tile_results if x is not None]
         # merge results
-        if self.tile_results:
+        if tile_results:
             if self.merge_mode:
                 if self.merge_mode == "merged":
                     self.tile_results = tile_results
