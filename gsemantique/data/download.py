@@ -274,13 +274,13 @@ class STACDownloader:
         ratio = len(coll) / len(self.item_coll)
         print(f"Success rate: {ratio:.2%}")
 
-    async def _async_download(self, pre_n=10, reauth_batch_size=1000):
+    async def _async_download(self, preview_size=10, reauth_batch_size=1000):
         """
         Download the items in the item collection to the output directory asynchronously.
 
         Args:
             assets (list): A list of asset keys to download.
-            pre_n (int): The number of items to download for the preview run.
+            preview_size (int): The number of items to download for the preview run.
                 Used to estimate the size of the download.
             reauth_batch_size (int): The number of items to download in each batch in an
                 asynchronous way. Used to control at which interval items are resigned.
@@ -299,7 +299,7 @@ class STACDownloader:
         stac_config = stac_asset.Config(**stac_config)
 
         # Preview run to estimate size
-        if len(self.item_coll) >= pre_n:
+        if len(self.item_coll) >= preview_size:
             print("Estimating size of download...")
 
             # Perform download for subsample
@@ -307,7 +307,9 @@ class STACDownloader:
 
                 # Subsample items for preview run
                 np.random.seed(42)
-                pre_coll = np.random.choice(self.item_coll, size=pre_n, replace=False)
+                pre_coll = np.random.choice(
+                    self.item_coll, size=preview_size, replace=False
+                )
                 pre_coll = pystac.ItemCollection(items=pre_coll)
 
                 # Downloading the item collection in batched manner
