@@ -24,7 +24,7 @@ from semantique import exceptions
 from semantique.datacube import STACCube
 from semantique.extent import SpatialExtent, TemporalExtent
 from semantique.processor.arrays import Collection
-from semantique.processor.core import QueryProcessor
+from semantique.processor.core import FakeProcessor, QueryProcessor
 from .vrt import virtual_merge
 
 
@@ -374,13 +374,23 @@ class TileHandler:
         if not self.grid:
             self.get_tile_grid()
 
+        # run fake processor to initialise cache
+        if self.caching:
+            tile = self.grid[0]
+            context = self._create_context(**{self.tile_dim: tile})
+            fp = FakeProcessor.parse(**context)
+            fp.optimize().execute()
+            self.cache = fp.cache
+
         # preview run of workflow for a single tile
+        # requires iteration over tiles until a valid response is obtained
+        # reason: some slices may not return a valid response (empty data)
         tile_idx = 0
         valid_response = False
         while not valid_response:
             tile = self.grid[tile_idx]
             context = self._create_context(
-                **{self.tile_dim: tile}, preview=True, cache=None
+                **{self.tile_dim: tile}, preview=True, cache=deepcopy(self.cache)
             )
             qp, response = TileHandler._execute_workflow(context)
             valid_response = True if response else False
@@ -391,10 +401,6 @@ class TileHandler:
             response = self._postprocess_temporal(response)
         elif self.tile_dim == sq.dimensions.SPACE:
             response = self._postprocess_spatial(response)
-
-        # init cache
-        if self.caching:
-            self.cache = qp.cache
 
         # get estimates based on preview run
         if self.tile_dim == sq.dimensions.TIME:
