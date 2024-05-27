@@ -73,9 +73,13 @@ class Finder:
         self.item_coll = self._merge_assets_per_item(self.item_coll)
 
     def search_man(self, layer_key):
+        logger.info(f"Initialise search for {layer_key}")
         self._retrieve_params(layer_key)
+        logger.info("Search started")
         self._retrieve_metadata(layer_key)
+        logger.info("Search finished")
         self._postprocess_search(layer_key)
+        logger.info("Search postprocessed")
         logger.info(f"Found {len(self.item_coll):d} datasets")
 
     def _retrieve_params(self, layer_key):
