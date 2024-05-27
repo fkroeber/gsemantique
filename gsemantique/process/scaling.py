@@ -1021,6 +1021,7 @@ class TileHandlerParallel(TileHandler):
                         desc="executing recipe in tiled manner",
                     )
                 )
+                tile_results = [x for x in tile_results if x is not None]
         # merge results
         if self.merge_mode:
             if self.merge_mode == "merged":
