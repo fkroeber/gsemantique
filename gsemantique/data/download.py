@@ -238,6 +238,7 @@ class STACDownloader:
             out_dir (str): The directory to download the files to. If not specified,
                 a new directory will be created with the current timestamp.
             reauth (bool): Whether to reauthenticate the items prior to downloading them.
+                Use batch_size as a kwarg to guide the reauth interval (-> _async_download). 
             **kwargs (dict): Keyword arguments forwarded to ._async_download().
         """
         self.item_coll = item_coll
