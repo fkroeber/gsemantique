@@ -226,7 +226,7 @@ class Downloader:
 
 
 class STACDownloader:
-    def __init__(self, item_coll, assets=None, out_dir=None, reauth=True, **kwargs):
+    def __init__(self, item_coll, assets=None, out_dir=None, retries=3, **kwargs):
         """
         Generic class downloading specified assets for a given item collection.
 
@@ -237,27 +237,44 @@ class STACDownloader:
                 which downloads all assets.
             out_dir (str): The directory to download the files to. If not specified,
                 a new directory will be created with the current timestamp.
-            reauth (bool): Whether to reauthenticate the items prior to downloading them.
-                Use batch_size as a kwarg to guide the reauth interval (-> _async_download). 
+            retries (int): The number of retries to attempt the whole download.
             **kwargs (dict): Keyword arguments forwarded to ._async_download().
         """
         self.item_coll = item_coll
         self.assets = assets
-        self.reauth = reauth
-        self.kwargs = kwargs
+        self.retries = retries
         if not out_dir:
             self.out_dir = f"data_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         else:
             self.out_dir = out_dir
+        self.kwargs = kwargs
 
     async def run(self):
         """
-        Executes the download processes followed by clean-up routines.
+        Executes the download processes in a retry manner.
         """
-        await self._async_download(**self.kwargs)
-        self._remove_empty_items(self.out_dir)
+        for i in range(self.retries):
+            print(f"Download loop {i}")
+            # Download & cleanup
+            await self._async_download(**self.kwargs)
+            self._remove_empty_items(self.out_dir)
+            # Check if current item collection contains all items
+            coll_path = os.path.join(self.out_dir, "item-collection.json")
+            coll = pystac.ItemCollection.from_file(coll_path)
+            ratio = len(coll) / len(self.item_coll)
+            print(f"Success rate: {ratio:.2%}")
+            if ratio == 1.0:
+                break
+            else:
+                print("Retry download to get all items.")
+        # check final download result
+        # tbd: print warning if success rate below critical threshold (e.g. 0.99)
+        coll_path = os.path.join(self.out_dir, "item-collection.json")
+        coll = pystac.ItemCollection.from_file(coll_path)
+        ratio = len(coll) / len(self.item_coll)
+        print(f"Success rate: {ratio:.2%}")
 
-    async def _async_download(self, pre_n=10, batch_size=1000):
+    async def _async_download(self, pre_n=10, reauth=True, batch_size=1000):
         """
         Download the items in the item collection to the output directory asynchronously.
 
@@ -265,9 +282,12 @@ class STACDownloader:
             assets (list): A list of asset keys to download.
             pre_n (int): The number of items to download for the preview run.
                 Used to estimate the size of the download.
+            reauth (bool): Whether to reauthenticate the items prior to downloading them.
+                Use batch_size as a kwarg to guide the reauth interval.
             batch_size (int): The number of items to download in each batch.
-                Used to control at which interval items are resigned.
-                If batch_size = 1, each item is resigned before being downloaded.
+                Used to control at which interval items are resigned. Items are resigned every
+                batch_size items. If batch_size = 1, every item is resigned before being
+                downloaded.
         """
         # Set up download parameters
         opt_retry = ExponentialRetry(attempts=3)
@@ -285,7 +305,7 @@ class STACDownloader:
             np.random.seed(42)
             pre_coll = np.random.choice(self.item_coll, size=pre_n, replace=False)
             pre_coll = pystac.ItemCollection(items=pre_coll)
-            if self.reauth:
+            if reauth:
                 pre_coll = STACCube._sign_metadata(list(pre_coll))
             pre_coll = deepcopy(pre_coll)
 
@@ -342,7 +362,7 @@ class STACDownloader:
         for i in range(0, len(self.item_coll), batch_size):
             # create single batch
             batch = self.item_coll[i : i + batch_size]
-            if self.reauth:
+            if reauth:
                 batch = STACCube._sign_metadata(list(batch))
             else:
                 batch = pystac.ItemCollection(items=batch)
