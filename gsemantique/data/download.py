@@ -274,7 +274,7 @@ class STACDownloader:
         ratio = len(coll) / len(self.item_coll)
         print(f"Success rate: {ratio:.2%}")
 
-    async def _async_download(self, pre_n=10, reauth=True, batch_size=1000):
+    async def _async_download(self, pre_n=10, reauth_batch_size=1000):
         """
         Download the items in the item collection to the output directory asynchronously.
 
@@ -282,12 +282,13 @@ class STACDownloader:
             assets (list): A list of asset keys to download.
             pre_n (int): The number of items to download for the preview run.
                 Used to estimate the size of the download.
-            reauth (bool): Whether to reauthenticate the items prior to downloading them.
-                Use batch_size as a kwarg to guide the reauth interval.
-            batch_size (int): The number of items to download in each batch.
-                Used to control at which interval items are resigned. Items are resigned every
-                batch_size items. If batch_size = 1, every item is resigned before being
-                downloaded.
+            reauth_batch_size (int): The number of items to download in each batch in an
+                asynchronous way. Used to control at which interval items are resigned.
+                Items are resigned every reauth_batch_size items. Reauth_batch_size = 1
+                implies that every item is resigned before being downloaded, and the
+                download is done in a synchronous way. If reauth_batch_size is None,
+                no reauthentication will be performed and all items will be downloaded
+                in a completely asnychronous manner.
         """
         # Set up download parameters
         opt_retry = ExponentialRetry(attempts=3)
@@ -301,36 +302,45 @@ class STACDownloader:
         if len(self.item_coll) >= pre_n:
             print("Estimating size of download...")
 
-            # Subsample items for preview run
-            np.random.seed(42)
-            pre_coll = np.random.choice(self.item_coll, size=pre_n, replace=False)
-            pre_coll = pystac.ItemCollection(items=pre_coll)
-            if reauth:
-                pre_coll = STACCube._sign_metadata(list(pre_coll))
-            pre_coll = deepcopy(pre_coll)
-
             # Perform download for subsample
             with TemporaryDirectory() as temp_dir:
-                await stac_asset.download_item_collection(
-                    item_collection=pre_coll,
-                    directory=temp_dir,
-                    keep_non_downloaded=False,
-                    config=stac_config,
-                    clients=[
-                        HttpClient(
-                            RetryClient(
-                                aiohttp.ClientSession(timeout=opt_timeout),
-                                retry_options=opt_retry,
-                            )
-                        ),
-                        PlanetaryComputerClient(
-                            RetryClient(
-                                aiohttp.ClientSession(timeout=opt_timeout),
-                                retry_options=opt_retry,
-                            )
-                        ),
-                    ],
-                )
+
+                # Subsample items for preview run
+                np.random.seed(42)
+                pre_coll = np.random.choice(self.item_coll, size=pre_n, replace=False)
+                pre_coll = pystac.ItemCollection(items=pre_coll)
+
+                # Downloading the item collection in batched manner
+                batch_size = reauth_batch_size or len(pre_coll)
+                for i in range(0, len(pre_coll), batch_size):
+                    # create single batch
+                    batch = pre_coll[i : i + batch_size]
+                    if reauth_batch_size is not None:
+                        batch = STACCube._sign_metadata(list(batch))
+                    else:
+                        batch = pystac.ItemCollection(items=batch)
+                    batch = deepcopy(batch)
+
+                    await stac_asset.download_item_collection(
+                        item_collection=pre_coll,
+                        directory=temp_dir,
+                        keep_non_downloaded=False,
+                        config=stac_config,
+                        clients=[
+                            HttpClient(
+                                RetryClient(
+                                    aiohttp.ClientSession(timeout=opt_timeout),
+                                    retry_options=opt_retry,
+                                )
+                            ),
+                            PlanetaryComputerClient(
+                                RetryClient(
+                                    aiohttp.ClientSession(timeout=opt_timeout),
+                                    retry_options=opt_retry,
+                                )
+                            ),
+                        ],
+                    )
 
                 # Clean directory
                 self._remove_empty_items(temp_dir)
@@ -359,14 +369,16 @@ class STACDownloader:
         )
 
         # Downloading the item collection in batched manner
+        batch_size = reauth_batch_size or len(self.item_coll)
         for i in range(0, len(self.item_coll), batch_size):
             # create single batch
             batch = self.item_coll[i : i + batch_size]
-            if reauth:
+            if reauth_batch_size is not None:
                 batch = STACCube._sign_metadata(list(batch))
             else:
                 batch = pystac.ItemCollection(items=batch)
             batch = deepcopy(batch)
+
             # download batch
             await stac_asset.download_item_collection(
                 item_collection=batch,
