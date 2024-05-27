@@ -256,7 +256,7 @@ class STACDownloader:
         await self._async_download(**self.kwargs)
         self._remove_empty_items(self.out_dir)
 
-    async def _async_download(self, pre_n=10, attempts=3):
+    async def _async_download(self, pre_n=10, batch_size=1000):
         """
         Download the items in the item collection to the output directory asynchronously.
 
@@ -264,10 +264,12 @@ class STACDownloader:
             assets (list): A list of asset keys to download.
             pre_n (int): The number of items to download for the preview run.
                 Used to estimate the size of the download.
-            attempts (int): The number of download attempts to make before failing.
+            batch_size (int): The number of items to download in each batch.
+                Used to control at which interval items are resigned.
+                If batch_size = 1, each item is resigned before being downloaded.
         """
         # Set up download parameters
-        opt_retry = ExponentialRetry(attempts)
+        opt_retry = ExponentialRetry(attempts=3)
         opt_timeout = aiohttp.client.ClientTimeout(total=3600)
         stac_config = dict(warn=True)
         if self.assets:
@@ -284,6 +286,7 @@ class STACDownloader:
             pre_coll = pystac.ItemCollection(items=pre_coll)
             if self.reauth:
                 pre_coll = STACCube._sign_metadata(list(pre_coll))
+            pre_coll = deepcopy(pre_coll)
 
             # Perform download for subsample
             with TemporaryDirectory() as temp_dir:
@@ -335,19 +338,20 @@ class STACDownloader:
         )
 
         # Downloading the item collection in batched manner
-        # reasons
-        # a) avoidance of throttling by the client/server
-        # b) reauth possibilities
-        for i in range(0, len(self.item_coll), 1000):
-            batch = self.item_coll[i : i + 1000]
+        for i in range(0, len(self.item_coll), batch_size):
+            # create single batch
+            batch = self.item_coll[i : i + batch_size]
             if self.reauth:
                 batch = STACCube._sign_metadata(list(batch))
             else:
                 batch = pystac.ItemCollection(items=batch)
+            batch = deepcopy(batch)
+            # download batch
             await stac_asset.download_item_collection(
                 item_collection=batch,
                 directory=self.out_dir,
                 keep_non_downloaded=False,
+                file_name=f"item-collection-batch-{i}.json",
                 config=stac_config,
                 clients=[
                     HttpClient(
@@ -369,6 +373,20 @@ class STACDownloader:
         # Signal the message handler to stop
         await messages.put(None)
         await message_handler_task
+
+        # Merge the item collections
+        coll_paths = [
+            os.path.join(self.out_dir, f)
+            for f in os.listdir(self.out_dir)
+            if f.startswith("item-collection-batch-")
+        ]
+        all_items = []
+        for f in coll_paths:
+            item_collection = pystac.ItemCollection.from_file(f)
+            all_items.extend(item_collection.items)
+            os.remove(f)
+        item_coll = pystac.ItemCollection(items=all_items)
+        item_coll.save_object(os.path.join(self.out_dir, "item-collection.json"))
 
     async def _async_message_handling(
         self, messages, total_files, directory, interval=1
@@ -392,8 +410,12 @@ class STACDownloader:
         )
         # variables to keep track of progress
         last_checked = time.time()
-        current_size = 0
         prev_size = 0
+
+        # start the background task
+        background_task = asyncio.create_task(
+            self._calculate_dir_size(directory, interval)
+        )
 
         while True:
             message = await messages.get()
@@ -403,13 +425,27 @@ class STACDownloader:
             # update every interval seconds
             current_time = time.time()
             if current_time - last_checked >= interval:
-                current_size = STACDownloader._get_dir_size(directory)
                 last_checked = current_time
-                size_bar.update(current_size - prev_size)
-                prev_size = current_size
+                size_bar.update(self._dir_size - prev_size)
+                prev_size = self._dir_size
+
+        # cancel the background task when done
+        background_task.cancel()
 
         # close the progress bars when done
         size_bar.close()
+
+    async def _calculate_dir_size(self, directory, interval):
+        """
+        Calculate the size of the directory at regular intervals.
+
+        Args:
+            directory (str): The directory to calculate the size of.
+            interval (int): The interval in seconds at which to calculate the size.
+        """
+        while True:
+            self._dir_size = STACDownloader._get_dir_size(directory)
+            await asyncio.sleep(interval)
 
     def _remove_empty_items(self, out_path):
         """
