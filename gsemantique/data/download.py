@@ -312,6 +312,12 @@ class STACDownloader:
                 )
                 pre_coll = pystac.ItemCollection(items=pre_coll)
 
+                # Starting the progress bar / message handler
+                messages = asyncio.Queue()
+                message_handler_task = asyncio.create_task(
+                    self._async_message_handling(messages, len(pre_coll), temp_dir)
+                )
+
                 # Downloading the item collection in batched manner
                 batch_size = reauth_batch_size or len(pre_coll)
                 for i in range(0, len(pre_coll), batch_size):
@@ -342,7 +348,12 @@ class STACDownloader:
                                 )
                             ),
                         ],
+                        messages=messages,
                     )
+
+                # Signal the message handler to stop
+                await messages.put(None)
+                await message_handler_task
 
                 # Clean directory
                 self._remove_empty_items(temp_dir)
