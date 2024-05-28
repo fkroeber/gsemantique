@@ -919,6 +919,11 @@ class TileHandler:
                 return qp, response
             except exceptions.EmptyDataError:
                 return None, None
+            except AssertionError as e:
+                if "Empty reader_table" in str(e):
+                    return None, None
+                else:
+                    raise
             except ValueError as e:
                 if "zero-size array" in str(e):
                     return None, None
