@@ -91,8 +91,11 @@ def virtual_merge(
     -----
     Credits: https://github.com/rasterio/rasterio/pull/2699
     This function is based on a PR (pending for rasterio release 1.5.0).
-    It has been slightly modified to incorporate colormaps & band descriptions
-    and to allow writing the resulting vrt dataset to relative paths.
+    It has been slightly modified...
+    * to incorporate colormaps
+    * to enable band descriptions
+    * to allow writing the resulting vrt dataset to relative paths
+    * to correct the way the nodata value is set
     """
 
     if isinstance(datasets[0], (str, os.PathLike)):
@@ -189,8 +192,12 @@ def virtual_merge(
         [str(v) for v in output_transform.to_gdal()]
     )
 
+    # Try to fetch no data from the first dataset if not user-specified
+    if nodata is None:
+        nodata = nodataval
+
+    # Only fill if the nodata is within dtype's range
     if nodata is not None:
-        # Only fill if the nodataval is within dtype's range
         inrange = False
         if np.issubdtype(dt, np.integer):
             info = np.iinfo(dt)
@@ -201,16 +208,13 @@ def virtual_merge(
             else:
                 info = np.finfo(dt)
                 inrange = info.min <= nodata <= info.max
-        if inrange:
-            nodataval = nodata
-        else:
+        if not inrange:
             warnings.warn(
                 "The nodata value, %s, is beyond the valid "
                 "range of the chosen data type, %s. Consider overriding it "
-                "using the --nodata option for better results." % (nodataval, dt)
+                "using the --nodata option for better results." % (nodata, dt)
             )
-    else:
-        nodataval = None
+            nodata = None
 
     # Create VRT bands.
     for bidx, desc, ci, cm, block_shape, dtype in zip(
@@ -223,10 +227,8 @@ def virtual_merge(
             band=str(bidx),
         )
 
-        if background is not None or nodataval is not None:
-            ET.SubElement(vrtrasterband, "NoDataValue").text = str(
-                background or nodataval
-            )
+        if background is not None or nodata is not None:
+            ET.SubElement(vrtrasterband, "NoDataValue").text = str(background or nodata)
 
             if hidenodata:
                 ET.SubElement(vrtrasterband, "HideNoDataValue").text = "1"
