@@ -185,7 +185,7 @@ class Finder:
             new_assets = {asset_name: item.assets[asset_name]}
             item.assets = new_assets
             # set collection items datetimes
-            if not item.properties["datetime"]:
+            if not item.properties.get("datetime"):
                 start_time = pd.Timestamp(item.properties["start_datetime"])
                 end_time = pd.Timestamp(item.properties["end_datetime"])
                 mean_time = start_time + (end_time - start_time) / 2
