@@ -205,7 +205,7 @@ class TileHandler:
         """
         reduce_dims = TileHandler.get_op_dims(self.recipe)
         # retrieve tile dimension as non-used dimension
-        if reduce_dims is None:
+        if not reduce_dims:
             if not self.tile_dim:
                 self.tile_dim = sq.dimensions.SPACE
         elif reduce_dims == [sq.dimensions.TIME]:
