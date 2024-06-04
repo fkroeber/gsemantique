@@ -184,12 +184,25 @@ class Finder:
             # subset item's assets to searched asset
             new_assets = {asset_name: item.assets[asset_name]}
             item.assets = new_assets
-            # set collection items datetimes
-            if not item.properties.get("datetime"):
-                start_time = pd.Timestamp(item.properties["start_datetime"])
-                end_time = pd.Timestamp(item.properties["end_datetime"])
+            # set collection items datetimes if necessary
+            set_time = False
+            if self.params_search["temp"]:
+                if not item.properties.get("datetime"):
+                    set_time = True
+                    start_time = pd.Timestamp(item.properties["start_datetime"])
+                    end_time = pd.Timestamp(item.properties["end_datetime"])
+            else:
+                set_time = True
+                start_time = pd.Timestamp(self.t_start)
+                end_time = pd.Timestamp(self.t_end)
+            if set_time:
                 mean_time = start_time + (end_time - start_time) / 2
-                item.set_datetime(mean_time)
+                if mean_time.tz is None:
+                    mean_time = mean_time.tz_localize("UTC")
+                item.set_datetime(mean_time.to_pydatetime())
+                item.properties["datetime"] = mean_time.strftime(
+                    "%Y-%m-%dT%H:%M:%S.%fZ"
+                )
 
     def _merge_assets_per_item(self, item_collection):
         """
