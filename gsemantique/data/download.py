@@ -291,8 +291,8 @@ class STACDownloader:
                 in a completely asnychronous manner.
         """
         # Set up download parameters
-        opt_retry = ExponentialRetry(attempts=3)
-        opt_timeout = aiohttp.client.ClientTimeout(total=3600)
+        opt_retry = ExponentialRetry(attempts=self.retries)
+        opt_timeout = aiohttp.client.ClientTimeout(total=1800)
         stac_config = dict(warn=True)
         if self.assets:
             stac_config["include"] = self.assets
@@ -339,13 +339,15 @@ class STACDownloader:
                                 RetryClient(
                                     aiohttp.ClientSession(timeout=opt_timeout),
                                     retry_options=opt_retry,
-                                )
+                                ),
+                                check_content_type=False,
                             ),
                             PlanetaryComputerClient(
                                 RetryClient(
                                     aiohttp.ClientSession(timeout=opt_timeout),
                                     retry_options=opt_retry,
-                                )
+                                ),
+                                check_content_type=False,
                             ),
                         ],
                         messages=messages,
@@ -404,13 +406,15 @@ class STACDownloader:
                         RetryClient(
                             aiohttp.ClientSession(timeout=opt_timeout),
                             retry_options=opt_retry,
-                        )
+                        ),
+                        check_content_type=False,
                     ),
                     PlanetaryComputerClient(
                         RetryClient(
                             aiohttp.ClientSession(timeout=opt_timeout),
                             retry_options=opt_retry,
-                        )
+                        ),
+                        check_content_type=False,
                     ),
                 ],
                 messages=messages,

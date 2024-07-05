@@ -14,7 +14,7 @@ dependencies = [
     "planetary-computer @ git+https://github.com/fkroeber/planetary-computer-sdk-for-python.git",
     "rioxarray<=0.15.5",
     "semantique @ git+https://github.com/fkroeber/semantique.git@latest",
-    "stac-asset",
+    "stac-asset>=0.4.0",
     "stackstac @ git+https://github.com/fkroeber/stackstac.git",
     "tqdm",
 ]
