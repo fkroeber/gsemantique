@@ -339,13 +339,15 @@ class STACDownloader:
                                 RetryClient(
                                     aiohttp.ClientSession(timeout=opt_timeout),
                                     retry_options=opt_retry,
-                                )
+                                ),
+                                check_content_type=True,
                             ),
                             PlanetaryComputerClient(
                                 RetryClient(
                                     aiohttp.ClientSession(timeout=opt_timeout),
                                     retry_options=opt_retry,
-                                )
+                                ),
+                                check_content_type=True,
                             ),
                         ],
                         messages=messages,
@@ -404,13 +406,15 @@ class STACDownloader:
                         RetryClient(
                             aiohttp.ClientSession(timeout=opt_timeout),
                             retry_options=opt_retry,
-                        )
+                        ),
+                        check_content_type=True,
                     ),
                     PlanetaryComputerClient(
                         RetryClient(
                             aiohttp.ClientSession(timeout=opt_timeout),
                             retry_options=opt_retry,
-                        )
+                        ),
+                        check_content_type=True,
                     ),
                 ],
                 messages=messages,
