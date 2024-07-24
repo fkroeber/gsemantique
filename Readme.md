@@ -38,4 +38,7 @@ The package contains several [Jupyter demo notebooks](./demo/). They are providi
 > [1] Binder sets up a JupyterLab env with 2 CPUs and a guaranteed RAM of at least 1GB (maximum of 4GB).  
 > [2] For Colab, the default CPU is an Intel Xeon CPU with 2 vCPUs (virtual CPUs) with about 12GB of RAM. 
 
+## Further documentation
+A pdf-presentation giving a general overview and introduction to this package and the underlying semantique package can be found [here](docs/intro_slides.pdf).
 
+Additionally, a Computers & Geoscience publication with the provisional title 'On-demand Eo data cubes - knowledge-based, semantic querying for mesoscale analyses anywhere on Earth' is in preparation.
