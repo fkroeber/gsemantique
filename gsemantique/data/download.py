@@ -180,6 +180,9 @@ class Downloader:
         """
         Create a spatial extent based on the provided list of polygons.
         """
+        # fix ill-defined geometries using zero-buffer
+        polygons = [p.buffer(0) for p in polygons]
+        # find union of geometries
         unioned_geometry = unary_union(polygons)
         return pystac.SpatialExtent(bboxes=[unioned_geometry.bounds])
 
