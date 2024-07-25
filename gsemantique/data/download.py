@@ -262,16 +262,13 @@ class STACDownloader:
             coll_path = os.path.join(self.out_dir, "item-collection.json")
             coll = pystac.ItemCollection.from_file(coll_path)
             ratio = len(coll) / len(self.item_coll)
-            print(f"Success rate: {ratio:.2%}")
             if ratio == 1.0:
                 break
-            else:
+            elif i < self.retries - 1:
                 print("Retry download to get all items.")
-        # check final download result
-        # tbd: print warning if success rate below critical threshold (e.g. 0.99)
-        coll_path = os.path.join(self.out_dir, "item-collection.json")
-        coll = pystac.ItemCollection.from_file(coll_path)
-        ratio = len(coll) / len(self.item_coll)
+            else:
+                print("Not all items retrieved. Please check the download process.")
+        print(f"Downloaded items: {len(coll)}/{len(self.item_coll)}")
         print(f"Success rate: {ratio:.2%}")
 
     async def _async_download(self, preview_size=10, reauth_batch_size=1000):
