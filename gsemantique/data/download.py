@@ -8,6 +8,7 @@ import os
 import shutil
 import stac_asset
 import time
+from aiohttp import ClientError
 from aiohttp_retry import RetryClient, ExponentialRetry
 from copy import deepcopy
 from datetime import datetime
@@ -18,6 +19,7 @@ from stac_asset.http_client import HttpClient
 from stac_asset.planetary_computer_client import PlanetaryComputerClient
 from tqdm import tqdm
 from tempfile import TemporaryDirectory
+from urllib.error import HTTPError, URLError
 
 
 class Downloader:
@@ -254,23 +256,39 @@ class STACDownloader:
 
     async def run(self):
         """
-        Executes the download processes in a retry manner.
+        Executes the download processes.
+
+        For synchronously executed processes, the retry is encapsulated in this
+        function here. For asynchronously executed processes, the retry is handled
+        in the _async_download function.
         """
         for i in range(self.retries):
-            print(f"Download loop {i}")
-            # Download & cleanup
-            await self._async_download(**self.kwargs)
-            self._remove_empty_items(self.out_dir)
-            # Check if current item collection contains all items
-            coll_path = os.path.join(self.out_dir, "item-collection.json")
-            coll = pystac.ItemCollection.from_file(coll_path)
-            ratio = len(coll) / len(self.item_coll)
-            if ratio == 1.0:
-                break
-            elif i < self.retries - 1:
-                print("Retry download to get all items.")
-            else:
-                print("Not all items retrieved. Please check the download process.")
+            try:
+                # Download & cleanup
+                await self._async_download(**self.kwargs)
+                self._remove_empty_items(self.out_dir)
+                # Evaluate success rate of download
+                coll_path = os.path.join(self.out_dir, "item-collection.json")
+                coll = pystac.ItemCollection.from_file(coll_path)
+                ratio = len(coll) / len(self.item_coll)
+                # Determine if retry is necessary
+                if ratio == 1.0:
+                    break
+                elif i < self.retries - 1:
+                    print(f"Retry attempt {i + 1} due to incomplete download")
+                else:
+                    print("Not all items retrieved. Please check the download process.")
+            except (HTTPError, URLError) as e:
+                if isinstance(e, HTTPError):
+                    print(f"Retry attempt {i + 1} for HTTPError {e.code}: {e}")
+                else:
+                    print(f"Retry attempt {i + 1} for URLError: {e}")
+                if i == self.retries - 1:
+                    print("Not all items retrieved. Please check the download process.")
+                    raise
+                await asyncio.sleep(2**i)
+            except Exception as e:
+                raise e
         print(f"Downloaded items: {len(coll)}/{len(self.item_coll)}")
         print(f"Success rate: {ratio:.2%}")
 
@@ -291,8 +309,8 @@ class STACDownloader:
                 in a completely asnychronous manner.
         """
         # Set up download parameters
-        opt_retry = ExponentialRetry(attempts=3)
-        opt_timeout = aiohttp.client.ClientTimeout(total=3600)
+        opt_retry = ExponentialRetry(attempts=3, exceptions={ClientError})
+        opt_timeout = aiohttp.client.ClientTimeout(total=1800)
         stac_config = dict(warn=True)
         if self.assets:
             stac_config["include"] = self.assets
