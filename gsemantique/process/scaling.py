@@ -848,7 +848,9 @@ class TileHandler:
             else time_grid
         )
         time_grid = (
-            [*time_grid, pd.Timestamp(t_end)] if t_end not in time_grid else time_grid
+            [*time_grid, pd.Timestamp(t_end)]
+            if t_end not in time_grid
+            else time_grid
         )
         time_grid = [x for x in zip(time_grid, time_grid[1:])]
         time_grid = [TemporalExtent(*t) for t in time_grid]
