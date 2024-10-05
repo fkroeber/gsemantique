@@ -327,10 +327,10 @@ class STACDownloader:
                         batch = STACCube._sign_metadata(list(batch))
                     else:
                         batch = pystac.ItemCollection(items=batch)
-                    batch = deepcopy(batch)
+                    batch = pystac.ItemCollection(deepcopy(batch))
 
                     await stac_asset.download_item_collection(
-                        item_collection=pre_coll,
+                        item_collection=batch,
                         directory=temp_dir,
                         keep_non_downloaded=False,
                         config=stac_config,
@@ -392,7 +392,7 @@ class STACDownloader:
                 batch = STACCube._sign_metadata(list(batch))
             else:
                 batch = pystac.ItemCollection(items=batch)
-            batch = deepcopy(batch)
+            batch = pystac.ItemCollection(deepcopy(batch))
 
             # download batch
             await stac_asset.download_item_collection(
