@@ -323,8 +323,25 @@ class STACDownloader:
                 for i in range(0, len(pre_coll), batch_size):
                     # create single batch
                     batch = pre_coll[i : i + batch_size]
+                    # reauth 
                     if reauth_batch_size is not None:
-                        batch = STACCube._sign_metadata(list(batch))
+                        signed = False
+                        on_hold_count = 0
+                        while not signed:
+                            try:
+                                batch = STACCube._sign_metadata(list(batch))
+                                signed = True
+                            except:
+                                on_hold_count += 1
+                                if on_hold_count == 1:
+                                    now = time.strftime(
+                                        "%Y-%m-%d %H:%M:%S",
+                                        time.localtime(time.time())
+                                    )
+                                    print(f"{now}: Download paused due to resign_error.")
+                                time.sleep(1)
+                        if on_hold_count:
+                            print(f"{now}: Download will be continued after resign_error.")
                     else:
                         batch = pystac.ItemCollection(items=batch)
                     batch = pystac.ItemCollection(deepcopy(batch))
@@ -388,8 +405,25 @@ class STACDownloader:
         for i in range(0, len(self.item_coll), batch_size):
             # create single batch
             batch = self.item_coll[i : i + batch_size]
+            # reauth 
             if reauth_batch_size is not None:
-                batch = STACCube._sign_metadata(list(batch))
+                signed = False
+                on_hold_count = 0
+                while not signed:
+                    try:
+                        batch = STACCube._sign_metadata(list(batch))
+                        signed = True
+                    except:
+                        on_hold_count += 1
+                        if on_hold_count == 1:
+                            now = time.strftime(
+                                "%Y-%m-%d %H:%M:%S",
+                                time.localtime(time.time())
+                            )
+                            print(f"{now}: Download paused due to resign_error.")
+                        time.sleep(1)
+                if on_hold_count:
+                    print(f"{now}: Download will be continued after resign_error.")
             else:
                 batch = pystac.ItemCollection(items=batch)
             batch = pystac.ItemCollection(deepcopy(batch))

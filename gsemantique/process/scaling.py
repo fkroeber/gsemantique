@@ -154,6 +154,7 @@ class TileHandler:
         self.grid = None
         self.tile_results = []
         self.cache = None
+        self.stop_flag = False
         # retrieve crs information
         if not self.crs:
             self.crs = self.space.crs
@@ -268,8 +269,7 @@ class TileHandler:
             context = self._create_context(
                 **{self.tile_dim: tile}, cache=deepcopy(self.cache)
             )
-            _, response = TileHandler._execute_workflow(context)
-
+            response = self._execute_workflow(context)
             # missing response possible in cases where
             # self.tile_dim = sq.dimensions.TIME & trim=True
             if response:
@@ -397,7 +397,7 @@ class TileHandler:
             context = self._create_context(
                 **{self.tile_dim: tile}, preview=True, cache=deepcopy(self.cache)
             )
-            qp, response = TileHandler._execute_workflow(context)
+            response = self._execute_workflow(context)
             valid_response = True if response else False
             tile_idx += 1
 
@@ -540,7 +540,11 @@ class TileHandler:
     def _continuous_signing(self):
         """Calling resign function in a loop."""
         while not self.signing_thread_event.is_set():
-            self.datacube.src = STACCube._sign_metadata(list(self.datacube.src))
+            try:
+                self.datacube.src = STACCube._sign_metadata(list(self.datacube.src))
+                self.stop_flag = False
+            except:
+                self.stop_flag = True
             time.sleep(1)
 
     def _create_context(self, **kwargs):
@@ -611,6 +615,65 @@ class TileHandler:
                     dst_arr[band_dim] = np.arange(len(band_names)) + 1
                 # write updated array to disk
                 TileHandler._write_to_origin(dst_arr, src)
+
+    def _execute_workflow(self, context):
+        """
+        Execute the workflow and handle response. Possible reauthentication problems with
+        the items are handled by putting the processing on hold until the correct 
+        authentication of the items can be confirmed again. 
+
+        Errors originating from empty datacubes can occur due to tiling and need to be
+        handled. Two different errors are possible: EmptyDataErrors and ValueErrors, both
+        originating from datacube.retrieve() and often related to the option trim=True
+        being set in the datacube config or the parse_extent function.
+        """
+        run_workflow = True
+        while run_workflow:
+            # check validity of datacube items (= Are items authenticated?)
+            on_hold_count = 0
+            while self.stop_flag:
+                time.sleep(1)
+                now = time.strftime(
+                    "%Y-%m-%d %H:%M:%S",
+                    time.localtime(time.time())
+                )
+                if not on_hold_count:
+                    print(f"{now}: Execution paused due to resign_error.")
+                on_hold_count += 1
+            if on_hold_count:
+                print(f"{now}: Execution continued after resign_error.")
+            # run actual workflow
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                try:
+                    qp = QueryProcessor.parse(**context)
+                    response = qp.optimize().execute()
+                except exceptions.EmptyDataError:
+                    response = None
+                except AssertionError as e:
+                    if "Empty reader_table" in str(e):
+                        response = None
+                    else:
+                        raise
+                except ValueError as e:
+                    if "zero-size array" in str(e):
+                        response = None
+                    else:
+                        raise
+            # check validity of datacube items again
+            run_workflow = False
+            if self.stop_flag:
+                now = time.strftime(
+                    "%Y-%m-%d %H:%M:%S",
+                    time.localtime(time.time())
+                )
+                print(f"{now}: Execution will be repeated to resign_error.")
+                print(f"{now}: Check the following tile")
+                print(f"{now}: -- location: {context['space']}".encode('ascii', 'replace').decode('ascii'))
+                print(f"{now}: -- time: {context['time']}".encode('ascii', 'replace').decode('ascii'))
+                run_workflow = True
+            # return result
+            return response
 
     def _merge_spatial(src_arrs, crs, res):
         """Merges spatially stratified results into an array"""
@@ -903,36 +966,6 @@ class TileHandler:
         return dims
 
     @staticmethod
-    def _execute_workflow(context):
-        """
-        Execute the workflow and handle response.
-
-        Errors originating from empty datacubes can occur due
-        to tiling and need to be handled. Two different errors are
-        possible: EmptyDataErrors and ValueErrors, both originating
-        from datacube.retrieve() and often related to the option trim=True
-        being set in the datacube config or the parse_extent function.
-        """
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", UserWarning)
-            try:
-                qp = QueryProcessor.parse(**context)
-                response = qp.optimize().execute()
-                return qp, response
-            except exceptions.EmptyDataError:
-                return None, None
-            except AssertionError as e:
-                if "Empty reader_table" in str(e):
-                    return None, None
-                else:
-                    raise
-            except ValueError as e:
-                if "zero-size array" in str(e):
-                    return None, None
-                else:
-                    raise
-
-    @staticmethod
     def _get_class_components(class_obj):
         """
         Function to get all components of the class along with their values
@@ -1070,7 +1103,7 @@ class TileHandlerParallel(TileHandler):
         }
         context = th._create_context(**context_params)
         # evaluate the recipe
-        _, response = th._execute_workflow(context)
+        response = th._execute_workflow(context)
         # handle response
         if response:
             if not th.merge_mode:
