@@ -672,8 +672,8 @@ class TileHandler:
                 print(f"{now}: -- location: {context['space']}".encode('ascii', 'replace').decode('ascii'))
                 print(f"{now}: -- time: {context['time']}".encode('ascii', 'replace').decode('ascii'))
                 run_workflow = True
-            # return result
-            return response
+        # return result
+        return response
 
     def _merge_spatial(src_arrs, crs, res):
         """Merges spatially stratified results into an array"""
