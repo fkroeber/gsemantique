@@ -106,6 +106,10 @@ class Downloader:
         # Normalize asset hrefs relative to the catalog location and save it
         catalog.normalize_hrefs(output_path)
         catalog.make_all_asset_hrefs_relative()
+
+        # tbd: this function here _create_and_save_catalog is slow
+        # specifically: it scales exponentially with amount of items
+        # Related issue: https://github.com/stac-utils/pystac/issues/1207
         catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
 
     def _create_full_extent(self, stac_item_list):
