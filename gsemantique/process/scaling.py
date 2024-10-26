@@ -1044,13 +1044,29 @@ class TileHandlerParallel(TileHandler):
     """Handler for executing a query in exhaustive multiprocessing manner.
     Contrary to the TileHandler, which only parallelises data loading, the
     TileHandlerParallel class allows to parallelise the recipe execution, too.
-    The number of used    
-    
+
+    Note that for STACCubes, parallel processing is per default already
+    enabled for data loading. Parallel processing via TileHandlerParallel
+    only makes sense if the workflow encapsulated in the recipe is
+    significantly more time-consuming than the actual data loading. It
+    must also be noted that the available RAM resources must be sufficient
+    to process, n_procs times the amount of data that arises in the case of
+    a simple TileHandler. This usually requires an adjustment of the
+    chunksizes, which in turn may increase the amount of redundant data
+    fetching processes (because the same data may be loaded for neighbouring
+    smaller tiles). The possible advantage of using the ParallelProcessor
+    depends on the specific recipe and is not trivial. In case of doubt,
+    the use of the TileHandler without multiprocessing is recommended.
+
+    Note that for a smooth execution all custom verbs, operators & reducers
+    should be defined in a self-contained way, i.e. including imports
+    such as `import semantique as sq` at their beginning.
+
     Parameters
     ----------
       args: dict
-        TileHandler arguments, see class defintion of TileHandler
-      n_cores : int, optional
+        TileHandler arguments, see class definition of TileHandler
+      n_procs : int, optional
         The number of cores to be used for parallel processing.
     """
 
