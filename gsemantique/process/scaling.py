@@ -25,7 +25,7 @@ from semantique import exceptions
 from semantique.datacube import STACCube
 from semantique.extent import SpatialExtent, TemporalExtent
 from semantique.processor.arrays import Collection
-from semantique.processor.core import FakeProcessor, QueryProcessor
+from semantique.processor.core import FilterProcessor, QueryProcessor
 from .vrt import virtual_merge
 
 
@@ -377,13 +377,16 @@ class TileHandler:
         if not self.grid:
             self.get_tile_grid()
 
+        # run filter processor to reduce data amount
+        tile = self.grid[0]
+        context = self._create_context(**{self.tile_dim: tile})
+        fip = FilterProcessor.parse(**context)
+        _ = fip.optimize().execute()
+        self.datacube = fip.datacube
+
         # run fake processor to initialise cache
         if self.caching:
-            tile = self.grid[0]
-            context = self._create_context(**{self.tile_dim: tile})
-            fp = FakeProcessor.parse(**context)
-            fp.optimize().execute()
-            self.cache = fp.cache
+            self.cache = fip.fap.cache
 
         # preview run of workflow for a single tile
         # requires iteration over tiles until a valid response is obtained
