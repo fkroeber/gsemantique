@@ -183,16 +183,10 @@ class TileHandler:
         if self.out_dir:
             os.makedirs(self.out_dir)
         # continous re-auth
-        if self.reauth:
-            self.signing_thread_event = threading.Event()
-            self.signing_thread = threading.Thread(target=self._continuous_signing)
-            self.signing_thread.daemon = True
-            self.signing_thread.start()
+        self._start_signing_thread()
 
     def __del__(self):
-        if hasattr(self, "signing_thread_event") and self.signing_thread_event.is_set():
-            self.signing_thread_event.set()
-            self.signing_thread.join()
+        self._stop_signing_thread()
 
     def get_tile_dim(self):
         """Returns dimension usable for tiling & parallelisation of recipe execution.
@@ -382,7 +376,11 @@ class TileHandler:
         context = self._create_context(**{self.tile_dim: tile})
         fip = FilterProcessor.parse(**context)
         _ = fip.optimize().execute()
+        # assign reduced datacube to self.datacube
+        # pause resigning during this operation
+        self._stop_signing_thread()
         self.datacube = fip.datacube
+        self._start_signing_thread()
 
         # run fake processor to initialise cache
         if self.caching:
@@ -836,6 +834,21 @@ class TileHandler:
                 in_arr = in_arr.assign_coords(_grouper=grouper_vals)
             out_dict[k] = in_arr
         return out_dict
+
+    def _start_signing_thread(self):
+        """Start the signing thread."""
+        if self.reauth:
+            self.signing_thread_event = threading.Event()
+            self.signing_thread = threading.Thread(target=self._continuous_signing)
+            self.signing_thread.daemon = True
+            self.signing_thread.start()
+
+    def _stop_signing_thread(self):
+        """Stop the signing thread."""
+        if hasattr(self, "signing_thread_event"):
+            self.signing_thread_event.set()
+            self.signing_thread.join()
+            self.signing_thread_event = None
 
     @staticmethod
     def _add_band_idx(in_arr):
