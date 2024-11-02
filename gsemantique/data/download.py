@@ -39,7 +39,7 @@ class Downloader:
                 The Finder result (search.py) to be downloaded.
             out_dir (str): The directory to download the files to. If not specified,
                 a new directory will be created with the current timestamp.
-            **kwargs (dict): Keyword arguments forwarded to STACDownloader.
+            **kwargs (dict): Keyword arguments forwarded to _STACDownloader.
         """
         self.item_coll = item_coll
         self.kwargs = kwargs
@@ -158,7 +158,7 @@ class Downloader:
             print(f"{row['collection']} (collection {idx+1}/{len(grouped_df)})")
             nest_asyncio.apply()
             item_coll = pystac.ItemCollection(row["item"])
-            dwl = STACDownloader(
+            dwl = _STACDownloader(
                 item_coll=item_coll,
                 out_dir=os.path.join(self.out_dir, row["collection"]),
                 **self.kwargs,
@@ -175,7 +175,7 @@ class Downloader:
         belong to one collection and are downloaded into a single folder.
         """
         nest_asyncio.apply()
-        dwl = STACDownloader(
+        dwl = _STACDownloader(
             item_coll=self.item_coll, out_dir=self.out_dir, **self.kwargs
         )
         asyncio.run(dwl.run())
@@ -232,7 +232,7 @@ class Downloader:
         os.remove(item_collection_path)
 
 
-class STACDownloader:
+class _STACDownloader:
     def __init__(self, item_coll, assets=None, out_dir=None, retries=3, **kwargs):
         """
         Generic class downloading specified assets for a given item collection.
@@ -384,16 +384,16 @@ class STACDownloader:
                 # Evaluate size
                 n_items = len(os.listdir(temp_dir))
                 mean_size = (
-                    STACDownloader._get_dir_size(temp_dir)
+                    _STACDownloader._get_dir_size(temp_dir)
                     / n_items
                     * len(self.item_coll)
                 )
                 sub_dirs = [os.path.join(temp_dir, x.id) for x in pre_coll]
-                std_size = np.std([STACDownloader._get_dir_size(x) for x in sub_dirs])
+                std_size = np.std([_STACDownloader._get_dir_size(x) for x in sub_dirs])
                 ci_size = 1.96 * std_size / ((n_items - 1) ** 0.5) * len(self.item_coll)
                 print(
-                    f"Estimated total size: {STACDownloader._sizeof_fmt(mean_size)} \xb1 "
-                    f"{STACDownloader._sizeof_fmt(ci_size)} (95% confidence interval)"
+                    f"Estimated total size: {_STACDownloader._sizeof_fmt(mean_size)} \xb1 "
+                    f"{_STACDownloader._sizeof_fmt(ci_size)} (95% confidence interval)"
                 )
         else:
             print("Not enough items to estimate size. Skipping preview run.")
@@ -532,7 +532,7 @@ class STACDownloader:
             interval (int): The interval in seconds at which to calculate the size.
         """
         while True:
-            self._dir_size = STACDownloader._get_dir_size(directory)
+            self._dir_size = _STACDownloader._get_dir_size(directory)
             await asyncio.sleep(interval)
 
     def _remove_empty_items(self, out_path):
@@ -543,7 +543,7 @@ class STACDownloader:
             out_path (str): The path to the output directory.
         """
         # find empty item dirs & delete them
-        empty_dirs = STACDownloader._find_empty_subdirs(out_path)
+        empty_dirs = _STACDownloader._find_empty_subdirs(out_path)
         for dir in empty_dirs:
             shutil.rmtree(dir)
         # update item collection
