@@ -47,12 +47,12 @@ class Finder:
         self.aoi = aoi
         self.params_search = {}
 
-    def search_auto(self, recipe, mapping, datacube, **kwargs):
+    def search_auto(self, recipe, mapping, **kwargs):
         # fake run to resolve data references
         fp = FakeProcessor(
             recipe=recipe,
-            datacube=datacube,
             mapping=mapping,
+            datacube=None,
             extent=xr.DataArray(),
             **kwargs,
         )
