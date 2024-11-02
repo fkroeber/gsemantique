@@ -29,13 +29,6 @@ from semantique.processor.core import FilterProcessor, QueryProcessor
 from .vrt import virtual_merge
 
 
-class MergeMode(Enum):
-    NONE = None
-    MERGED = "merged"
-    VRT_SHAPES = "vrt_shapes"
-    VRT_TILES = "vrt_tiles"
-
-
 class TileHandler:
     """Handler for executing a query in a (spatially or temporally) tiled manner.
     Note that it currently only supports non-grouped outputs, i.e. results that are
@@ -161,11 +154,11 @@ class TileHandler:
         if not self.crs:
             self.crs = self.space.crs
         # retrieve tiling dimension
-        self.get_tile_dim()
+        self._get_tile_dim()
         # check merge- & outdir-dependent prerequisites
-        if merge_mode not in {mode.value for mode in MergeMode}:
+        if merge_mode not in {mode.value for mode in _MergeMode}:
             raise ValueError(
-                f"Invalid merge_mode: {merge_mode}. Must be one of {[mode.value for mode in MergeMode]}"
+                f"Invalid merge_mode: {merge_mode}. Must be one of {[mode.value for mode in _MergeMode]}"
             )
         if self.merge_mode:
             if "vrt" in self.merge_mode and not self.out_dir:
@@ -188,9 +181,9 @@ class TileHandler:
     def __del__(self):
         self._stop_signing_thread()
 
-    def get_tile_dim(self):
+    def _get_tile_dim(self):
         """Returns dimension usable for tiling & parallelisation of recipe execution.
-        Calls `.get_op_dims()` to get dimensions which should be kept together to
+        Calls `._get_op_dims()` to get dimensions which should be kept together to
         ensure safe tiling.
 
         Note: EO data is usually organised in a time-first file structure, i.e. each file
@@ -200,7 +193,7 @@ class TileHandler:
         Therefore, chunking in space is set as a default if the processing chain as given by the
         recipe allows it.
         """
-        reduce_dims = TileHandler.get_op_dims(self.recipe)
+        reduce_dims = TileHandler._get_op_dims(self.recipe)
         # retrieve tile dimension as non-used dimension
         if not reduce_dims:
             if not self.tile_dim:
@@ -223,14 +216,14 @@ class TileHandler:
             warnings.warn("Tiling not feasible. Tiling dimension is set to 'None'.")
             self.tile_dim = None
 
-    def get_tile_grid(self):
+    def _get_tile_grid(self):
         """Creates spatial or temporal grid according to tiling dimension to enable
         subsequent sequential iteration over small sub-parts of the total extent object
         via .execute().
         """
         if self.tile_dim == sq.dimensions.TIME:
             # create temporal grid
-            self.grid = self.create_temporal_grid(
+            self.grid = self._create_temporal_grid(
                 self.time["start"], self.time["end"], self.chunksize_t
             )
 
@@ -240,7 +233,7 @@ class TileHandler:
                 precise_shp = False
             else:
                 precise_shp = True
-            self.grid = self.create_spatial_grid(
+            self.grid = self._create_spatial_grid(
                 self.space,
                 self.spatial_resolution,
                 self.chunksize_s,
@@ -292,11 +285,11 @@ class TileHandler:
         if self.tile_results:
             if self.merge_mode:
                 if self.merge_mode == "merged":
-                    self.merge_single()
+                    self._merge_single()
                 elif "vrt" in self.merge_mode:
-                    self.merge_vrt()
+                    self._merge_vrt()
 
-    def merge_single(self):
+    def _merge_single(self):
         """Merge results obtained for individual tiles by stitching them
         temporally or spatially depending on the tiling dimension.
         """
@@ -325,7 +318,7 @@ class TileHandler:
                     out_path = os.path.join(self.out_dir, f"{name}.tif")
                     arr.rio.to_raster(out_path)
 
-    def merge_vrt(self):
+    def _merge_vrt(self):
         """Merges results obtained for individual tiles by creating a virtual raster.
         Only available for spatial results obtained by a reduce-over-time. Not implemented
         for temporal results (i.e. timeseries obtained by a reduce-over-space).
@@ -369,7 +362,7 @@ class TileHandler:
 
         # get tiling grid
         if not self.grid:
-            self.get_tile_grid()
+            self._get_tile_grid()
 
         # run filter processor to reduce data amount
         tile = self.grid[0]
@@ -864,7 +857,7 @@ class TileHandler:
         return out_arr
 
     @staticmethod
-    def create_spatial_grid(
+    def _create_spatial_grid(
         space, spatial_resolution, chunksize_s, crs, precise=True, verbose=True
     ):
         # create coarse spatial grid
@@ -934,7 +927,7 @@ class TileHandler:
         return spatial_grid
 
     @staticmethod
-    def create_temporal_grid(t_start, t_end, chunksize_t):
+    def _create_temporal_grid(t_start, t_end, chunksize_t):
         time_grid = pd.date_range(t_start, t_end, freq=chunksize_t)
         time_grid = (
             [pd.Timestamp(t_start), *time_grid]
@@ -951,7 +944,7 @@ class TileHandler:
         return time_grid
 
     @staticmethod
-    def get_op_dims(recipe_piece, dims=None):
+    def _get_op_dims(recipe_piece, dims=None):
         """Retrieves the dimensions over which operations take place.
         All operations indicated by verbs (such as reduce, groupby, etc) are considered.
         """
@@ -965,11 +958,11 @@ class TileHandler:
                     dims.append(dim)
             # recursively search for values
             for value in recipe_piece.values():
-                TileHandler.get_op_dims(value, dims)
+                TileHandler._get_op_dims(value, dims)
         elif isinstance(recipe_piece, list):
             # if it's a list apply the function to each item in the list
             for item in recipe_piece:
-                TileHandler.get_op_dims(item, dims)
+                TileHandler._get_op_dims(item, dims)
         # categorise used dimensions into temporal & spatial dimensions
         dim_lut = {
             sq.dimensions.TIME: sq.dimensions.TIME,
@@ -1124,15 +1117,22 @@ class TileHandlerParallel(TileHandler):
             if self.merge_mode:
                 if self.merge_mode == "merged":
                     self.tile_results = tile_results
-                    self.merge_single()
+                    self._merge_single()
                 elif "vrt" in self.merge_mode:
                     self.tile_results = [x for sl in tile_results for x in sl]
-                    self.merge_vrt()
+                    self._merge_vrt()
             else:
                 self.tile_results = tile_results
 
 
-class PersistentWorker:
+class _MergeMode(Enum):
+    NONE = None
+    MERGED = "merged"
+    VRT_SHAPES = "vrt_shapes"
+    VRT_TILES = "vrt_tiles"
+
+
+class _PersistentWorker:
     def __init__(self, self_copy):
         """Initialize the worker process with its own copy of the self object."""
         self.th = self_copy
@@ -1183,7 +1183,7 @@ class PersistentWorker:
 def worker_initializer(self_copy):
     """Initializer for worker processes: creates a PersistentWorker instance."""
     global worker_instance
-    worker_instance = PersistentWorker(self_copy)
+    worker_instance = _PersistentWorker(self_copy)
 
 def worker_task(tile_idx):
     """Function that each worker process will call for each task."""
