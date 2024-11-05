@@ -386,8 +386,14 @@ class TileHandler:
         valid_response = False
         while not valid_response:
             if tile_idx >= len(self.grid):
-                print("For none of the tiles a valid response could be calculated.")
-                print("Check if the input data is within the spatio-temporal extent.")
+                print(
+                    "For none of the tiles a valid response could be calculated.",
+                    flush=True
+                )
+                print(
+                    "Check if the input data is within the spatio-temporal extent.",
+                    flush=True
+                )
                 break
             tile = self.grid[tile_idx]
             context = self._create_context(
@@ -406,9 +412,9 @@ class TileHandler:
 
             # get estimates based on preview run
             if self.tile_dim == sq.dimensions.TIME:
-                print(time_info)
+                print(time_info, flush=True)
             elif self.tile_dim == sq.dimensions.SPACE:
-                print(space_info)
+                print(space_info, flush=True)
 
                 # retrieve amount of pixels for given spatial extent
                 total_bbox = self.space._features.to_crs(self.crs).total_bounds
@@ -481,20 +487,22 @@ class TileHandler:
                     [len(str(info["res"])) for lyr, info in lyrs_info.items()]
                 )
                 line_l = max_l_lyr + max_l_res + 19
-                print(line_l * "-")
-                print("General layer info")
-                print(line_l * "-")
+                print(line_l * "-", flush=True)
+                print("General layer info", flush=True)
+                print(line_l * "-", flush=True)
                 print(
-                    f"{'layer':{max_l_lyr}} : {'dtype':{9}} {'crs':{5}} {'res':{max_l_res}}"
+                    f"{'layer':{max_l_lyr}} : {'dtype':{9}} {'crs':{5}} {'res':{max_l_res}}",
+                    flush=True
                 )
-                print(line_l * "-")
+                print(line_l * "-", flush=True)
                 for lyr, info in lyrs_info.items():
                     print(
                         f"{lyr:{max_l_lyr}} : {str(info['dtype']):{9}} "
-                        f"{str(info['crs']):{5}} {str(info['res']):{max_l_res}}"
+                        f"{str(info['crs']):{5}} {str(info['res']):{max_l_res}}",
+                        flush=True
                     )
-                print(line_l * "-")
-                print("")
+                print(line_l * "-", flush=True)
+                print("", flush=True)
 
                 # part b) merge strategy dependend information
                 for merge in lyrs_info[list(lyrs_info.keys())[0]]["merge"].keys():
@@ -512,26 +520,29 @@ class TileHandler:
                     max_l_size = len(f"{total_size:.2f}")
                     max_l_shape = max([len(x) for x in shapes])
                     line_l = max_l_lyr + max_l_n + max_l_size + max_l_shape + 18
-                    print(line_l * "-")
-                    print(f"Scenario: 'merge' = {merge}")
-                    print(line_l * "-")
+                    print(line_l * "-", flush=True)
+                    print(f"Scenario: 'merge' = {merge}", flush=True)
+                    print(line_l * "-", flush=True)
                     print(
                         f"{'layer':{max_l_lyr}} : {'size':^{max_l_size+3}}  "
-                        f"{'tile n':^{max_l_n+8}}  {'tile shape':^{max_l_shape}}"
+                        f"{'tile n':^{max_l_n+8}}  {'tile shape':^{max_l_shape}}",
+                        flush=True
                     )
-                    print(line_l * "-")
+                    print(line_l * "-", flush=True)
                     for lyr, info in lyrs_info.items():
                         lyr_info = info["merge"][merge]
                         print(
                             f"{lyr:{max_l_lyr}} : {lyr_info['size']:>{max_l_size}.2f} Gb  "
-                            f"{lyr_info['n']:>{max_l_n}} tile(s)  {str(lyr_info['shape']):>{max_l_shape}}"
+                            f"{lyr_info['n']:>{max_l_n}} tile(s)  {str(lyr_info['shape']):>{max_l_shape}}",
+                            flush=True
                         )
-                    print(line_l * "-")
+                    print(line_l * "-", flush=True)
                     print(
-                        f"{'Total':{max_l_lyr}}   {total_size:{max_l_size}.2f} Gb  {total_n:{max_l_n}} tile(s)"
+                        f"{'Total':{max_l_lyr}}   {total_size:{max_l_size}.2f} Gb  {total_n:{max_l_n}} tile(s)",
+                        flush=True
                     )
-                    print(line_l * "-")
-                    print("")
+                    print(line_l * "-", flush=True)
+                    print("", flush=True)
 
     def _continuous_signing(self):
         """Calling resign function in a loop."""
@@ -615,8 +626,8 @@ class TileHandler:
     def _execute_workflow(self, context):
         """
         Execute the workflow and handle response. Possible reauthentication problems with
-        the items are handled by putting the processing on hold until the correct 
-        authentication of the items can be confirmed again. 
+        the items are handled by putting the processing on hold until the correct
+        authentication of the items can be confirmed again.
 
         Errors originating from empty datacubes can occur due to tiling and need to be
         handled. Two different errors are possible: EmptyDataErrors and ValueErrors, both
@@ -637,10 +648,10 @@ class TileHandler:
                     time.localtime(time.time())
                 )
                 if not on_hold_count:
-                    print(f"{now}: Execution paused due to resign_error.")
+                    print(f"{now}: Execution paused due to resign_error.", flush=True)
                 on_hold_count += 1
             if on_hold_count:
-                print(f"{now}: Execution continued after resign_error.")
+                print(f"{now}: Execution continued after resign_error.", flush=True)
             # run actual workflow
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
