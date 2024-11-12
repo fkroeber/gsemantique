@@ -550,7 +550,7 @@ class TileHandler:
             try:
                 self.datacube.src = STACCube._sign_metadata(list(self.datacube.src))
                 self.stop_flag = False
-            except:
+            except Exception:
                 self.stop_flag = True
             time.sleep(1)
 
@@ -648,10 +648,10 @@ class TileHandler:
                     time.localtime(time.time())
                 )
                 if not on_hold_count:
-                    print(f"{now}: Execution paused due to resign_error.", flush=True)
+                    print(f"{now}: Execution paused due to resign error.", flush=True)
                 on_hold_count += 1
             if on_hold_count:
-                print(f"{now}: Execution continued after resign_error.", flush=True)
+                print(f"{now}: Execution continued after resign error.", flush=True)
             # run actual workflow
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
