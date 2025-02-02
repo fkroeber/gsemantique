@@ -625,14 +625,18 @@ class TileHandler:
 
     def _execute_workflow(self, context):
         """
-        Execute the workflow and handle response. Possible reauthentication problems with
-        the items are handled by putting the processing on hold until the correct
-        authentication of the items can be confirmed again.
+        Execute the workflow and handle response. 
+        
+        Possible reauthentication problems with the items are handled by putting the
+        processing on hold until a valid authentication of the items can be confirmed
+        again. Possible errors originating from other server-related issues are handled
+        gently by repeating the execution of the recipe and printing the error message.
 
-        Errors originating from empty datacubes can occur due to tiling and need to be
-        handled. Two different errors are possible: EmptyDataErrors and ValueErrors, both
-        originating from datacube.retrieve() and often related to the option trim=True
-        being set in the datacube config or the parse_extent function.
+        Note that further exceptions may occur as a result of the tiling process when the
+        recipe is executed for a tile that does not contain any data. This manifests in
+        EmptyDataErrors, AssertionErrors, or ValueErrors, all originating from calls to
+        datacube.retrieve(), often related to trim=True being set in the datacube config 
+        or the parse_extent function. These errors are completely ignored.
         """
         run_workflow = True
         retrieval_count = 0
@@ -664,16 +668,19 @@ class TileHandler:
                     if "Empty reader_table" in str(e):
                         response = None
                     else:
-                        raise
+                        print("\nError:", e, flush=True)
+                        retrieval_error = True
                 except ValueError as e:
                     if "zero-size array" in str(e):
                         response = None
                     else:
-                        raise
-                except Exception:
+                        print("\nError:", e, flush=True)
+                        retrieval_error = True
+                except Exception as e:
+                    print("\nError:", e, flush=True)
                     retrieval_error = True
-            # check validity of datacube items again
             run_workflow = False
+            # check validity of datacube items again
             if self.stop_flag:
                 err_msg = "Execution will be repeated due to resign error."
             elif retrieval_error:
