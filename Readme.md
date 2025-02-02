@@ -1,4 +1,4 @@
-# global semantic EO data cubes 
+# On-demand semantic EO data cubes 
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
@@ -38,7 +38,12 @@ The package contains several [Jupyter demo notebooks](./demo/). They are providi
 > [1] Binder sets up a JupyterLab env with 2 CPUs and a guaranteed RAM of at least 1GB (maximum of 4GB).  
 > [2] For Colab, the default CPU is an Intel Xeon CPU with 2 vCPUs (virtual CPUs) with about 12GB of RAM. 
 
-## Further documentation
 A pdf-presentation giving a general overview and introduction to this package and the underlying semantique package can be found [here](docs/intro_slides.pdf).
 
-Additionally, a Computers & Geoscience publication with the provisional title 'On-demand Eo data cubes - knowledge-based, semantic querying for mesoscale analyses anywhere on Earth' is in preparation.
+## Contribution
+
+Contributions of any kind are very welcome! Please see the [contributing guidelines](CONTRIBUTING.md).
+
+## Acknowledgements
+
+This is developed with support by the European Union (EU) under the HORIZON programme within the project "LARGE EARTH OBSERVATION NEW SPACE ECOSYSTEM GROUND SEGMENT (LEONSEGS)".
