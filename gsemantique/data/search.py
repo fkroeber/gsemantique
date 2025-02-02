@@ -1,7 +1,7 @@
+import gsemantique as gsq
 import json
 import logging
 import numpy as np
-import os
 import pandas as pd
 import planetary_computer as pc
 import pystac
@@ -10,9 +10,7 @@ from pystac_client import Client
 from pystac_client.stac_api_io import StacApiIO
 from semantique.processor.core import FakeProcessor
 from urllib3 import Retry
-from .datasets import Dataset
 
-FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +26,7 @@ class Finder:
         t_start,
         t_end,
         aoi,
-        layout_file=os.path.join(FILE_PATH, "../data/layout.json"),
+        layout_file=gsq.LAYOUT_PATH,
     ):
         """
         Initializes the Finder object with the specified inputs
@@ -172,10 +170,10 @@ class Finder:
         # collection-indifferent postprocessing
         with open(self.layout_file, "r") as f:
             layout_json = json.load(f)
-            parsed_layout = Dataset._parse_layout(layout_json)
+            parsed_layout = gsq.Dataset._parse_layout(layout_json)
         for item in self.item_coll:
             # write layout key to assets extra field
-            asset_name = Dataset._lookup(parsed_layout, *layer_key)["name"]
+            asset_name = gsq.Dataset._lookup(parsed_layout, *layer_key)["name"]
             if asset_name in item.assets:
                 asset_dict = item.assets[asset_name].to_dict()
                 asset_dict["semantique:key"] = layer_key

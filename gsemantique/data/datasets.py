@@ -1,4 +1,5 @@
 import copy
+import gsemantique as gsq
 import json
 import numpy as np
 import os
@@ -6,8 +7,6 @@ import pandas as pd
 import planetary_computer as pc
 import pickle
 from pystac_client import Client
-
-FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 class Dataset:
@@ -61,7 +60,7 @@ class Dataset:
     def add_layout_info(
         self,
         keys,
-        file=os.path.join(FILE_PATH, "layout.json"),
+        file=gsq.LAYOUT_PATH,
     ):
         """
         Adds dataset information from layout.json,
@@ -171,7 +170,7 @@ class DatasetCatalog:
         else:
             return "DatasetCatalog empty -> call .load() or .add() to populate the catalogue."
 
-    def __init__(self, cache_path=os.path.join(FILE_PATH, "data_cache.pkl")):
+    def __init__(self, cache_path=gsq.CACHE_PATH):
         self.cache_path = cache_path
         self.datasets = []
 
