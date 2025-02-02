@@ -323,7 +323,7 @@
             }
         }
     },
-    "Planet": {
+    "Planetary": {
         "reflectance": {
             "s1_amp_vv": {
                 "name": "vv",

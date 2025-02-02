@@ -82,7 +82,7 @@ class Dataset:
         if self.spatial_extent is None or self.temporal_extent is None:
             try:
                 # get collection metadata
-                if self.provider == "Planet":
+                if self.provider == "Planetary":
                     catalog = Client.open(self.endpoint, modifier=pc.sign_inplace)
                 else:
                     catalog = Client.open(self.endpoint)
@@ -275,7 +275,7 @@ class DatasetCatalog:
 
     def _load_defaults(self):
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="sentinel-1-rtc",
             category="SAR",
@@ -288,16 +288,16 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "reflectance", "s1_amp_vv"),
-                ("Planet", "reflectance", "s1_amp_vh"),
-                ("Planet", "reflectance", "s1_amp_hv"),
-                ("Planet", "reflectance", "s1_amp_hh"),
+                ("Planetary", "reflectance", "s1_amp_vv"),
+                ("Planetary", "reflectance", "s1_amp_vh"),
+                ("Planetary", "reflectance", "s1_amp_hv"),
+                ("Planetary", "reflectance", "s1_amp_hh"),
             ],
         )
         self.add(ds)
 
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="sentinel-2-l2a",
             category="multispectral",
@@ -310,25 +310,25 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "reflectance", "s2_band01"),
-                ("Planet", "reflectance", "s2_band02"),
-                ("Planet", "reflectance", "s2_band03"),
-                ("Planet", "reflectance", "s2_band04"),
-                ("Planet", "reflectance", "s2_band05"),
-                ("Planet", "reflectance", "s2_band06"),
-                ("Planet", "reflectance", "s2_band07"),
-                ("Planet", "reflectance", "s2_band08"),
-                ("Planet", "reflectance", "s2_band08A"),
-                ("Planet", "reflectance", "s2_band09"),
-                ("Planet", "reflectance", "s2_band11"),
-                ("Planet", "reflectance", "s2_band12"),
-                ("Planet", "classification", "scl"),
+                ("Planetary", "reflectance", "s2_band01"),
+                ("Planetary", "reflectance", "s2_band02"),
+                ("Planetary", "reflectance", "s2_band03"),
+                ("Planetary", "reflectance", "s2_band04"),
+                ("Planetary", "reflectance", "s2_band05"),
+                ("Planetary", "reflectance", "s2_band06"),
+                ("Planetary", "reflectance", "s2_band07"),
+                ("Planetary", "reflectance", "s2_band08"),
+                ("Planetary", "reflectance", "s2_band08A"),
+                ("Planetary", "reflectance", "s2_band09"),
+                ("Planetary", "reflectance", "s2_band11"),
+                ("Planetary", "reflectance", "s2_band12"),
+                ("Planetary", "classification", "scl"),
             ],
         )
         self.add(ds)
 
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="landsat-c2-l2",
             category="multispectral",
@@ -341,22 +341,22 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "reflectance", "lndst_coastal"),
-                ("Planet", "reflectance", "lndst_blue"),
-                ("Planet", "reflectance", "lndst_green"),
-                ("Planet", "reflectance", "lndst_red"),
-                ("Planet", "reflectance", "lndst_nir08"),
-                ("Planet", "reflectance", "lndst_swir16"),
-                ("Planet", "reflectance", "lndst_swir22"),
-                ("Planet", "reflectance", "lndst_lwir109"),
-                ("Planet", "reflectance", "lndst_lwir114"),
-                ("Planet", "reflectance", "lndst_qa"),
+                ("Planetary", "reflectance", "lndst_coastal"),
+                ("Planetary", "reflectance", "lndst_blue"),
+                ("Planetary", "reflectance", "lndst_green"),
+                ("Planetary", "reflectance", "lndst_red"),
+                ("Planetary", "reflectance", "lndst_nir08"),
+                ("Planetary", "reflectance", "lndst_swir16"),
+                ("Planetary", "reflectance", "lndst_swir22"),
+                ("Planetary", "reflectance", "lndst_lwir109"),
+                ("Planetary", "reflectance", "lndst_lwir114"),
+                ("Planetary", "reflectance", "lndst_qa"),
             ],
         )
         self.add(ds)
 
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="esa-worldcover",
             category="landcover",
@@ -369,13 +369,13 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "classification", "esa_lc"),
+                ("Planetary", "classification", "esa_lc"),
             ],
         )
         self.add(ds)
 
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="io-lulc-annual-v02",
             category="landcover",
@@ -388,13 +388,13 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "classification", "impact_lc"),
+                ("Planetary", "classification", "impact_lc"),
             ],
         )
         self.add(ds)
 
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="nasadem",
             category="DEM",
@@ -407,13 +407,13 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "topography", "dem"),
+                ("Planetary", "topography", "dem"),
             ],
         )
         self.add(ds)
 
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="cop-dem-glo-30",
             category="DSM",
@@ -426,13 +426,13 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "topography", "dsm"),
+                ("Planetary", "topography", "dsm"),
             ],
         )
         self.add(ds)
 
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="modis-64A1-061",
             category="fire detection",
@@ -445,15 +445,15 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "burned_mapping", "m_burn_date"),
-                ("Planet", "burned_mapping", "m_burn_uncertainty"),
-                ("Planet", "burned_mapping", "m_burn_qa"),
+                ("Planetary", "burned_mapping", "m_burn_date"),
+                ("Planetary", "burned_mapping", "m_burn_uncertainty"),
+                ("Planetary", "burned_mapping", "m_burn_qa"),
             ],
         )
         self.add(ds)
 
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="modis-14A2-061",
             category="fire detection",
@@ -466,14 +466,14 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "burned_mapping", "w_burn_qa"),
-                ("Planet", "burned_mapping", "w_burn_firemask"),
+                ("Planetary", "burned_mapping", "w_burn_qa"),
+                ("Planetary", "burned_mapping", "w_burn_firemask"),
             ],
         )
         self.add(ds)
 
         ds = Dataset(
-            provider="Planet",
+            provider="Planetary",
             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",
             collection="jrc-gsw",
             category="hydrogeography",
@@ -486,10 +486,10 @@ class DatasetCatalog:
         )
         ds.add_layout_info(
             [
-                ("Planet", "hydrogeography", "change"),
-                ("Planet", "hydrogeography", "extent"),
-                ("Planet", "hydrogeography", "occurrence"),
-                ("Planet", "hydrogeography", "transitions"),
+                ("Planetary", "hydrogeography", "change"),
+                ("Planetary", "hydrogeography", "extent"),
+                ("Planetary", "hydrogeography", "occurrence"),
+                ("Planetary", "hydrogeography", "transitions"),
             ],
         )
         self.add(ds)

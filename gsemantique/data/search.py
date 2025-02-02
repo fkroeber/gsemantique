@@ -120,7 +120,7 @@ class Finder:
         )
 
         # init search client
-        if self.params_search["provider"] == "Planet":
+        if self.params_search["provider"] == "Planetary":
             catalog = Client.open(
                 self.params_search["catalog"],
                 modifier=pc.sign_inplace,
