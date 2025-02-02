@@ -46,4 +46,4 @@ Contributions of any kind are very welcome! Please see the [contributing guideli
 
 ## Acknowledgements
 
-This is developed with support by the European Union (EU) under the HORIZON programme within the project "LARGE EARTH OBSERVATION NEW SPACE ECOSYSTEM GROUND SEGMENT (LEONSEGS)".
+This is developed with support by the European Union (EU) under the HORIZON programme within the project "Large Earth Observation New Space Ecosystem Ground Segment (LEONSEGS)".
