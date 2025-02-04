@@ -8,6 +8,7 @@ import pystac
 import xarray as xr
 from pystac_client import Client
 from pystac_client.stac_api_io import StacApiIO
+from semantique.datacube import STACCube
 from semantique.processor.core import FakeProcessor
 from urllib3 import Retry
 
@@ -109,37 +110,59 @@ class Finder:
         """
         Performs the data search based on the retrieved params
         """
-        # init retry
-        retry = Retry(
-            total=5,
-            backoff_factor=1,
-            status_forcelist=[408, 502, 503, 504],
-            allowed_methods=None,
-        )
+        # search for static catalogs
+        if self.params_search["catalog"].endswith(".json"):
+            logger.warning("Static catalog is queried. Slow performance expected.")
 
-        # init search client
-        if self.params_search["provider"] == "Planetary":
-            catalog = Client.open(
-                self.params_search["catalog"],
-                modifier=pc.sign_inplace,
-                stac_io=StacApiIO(max_retries=retry, timeout=1800),
+            # load all collection items
+            catalog = pystac.Catalog.from_file(self.params_search["catalog"])
+            coll = catalog.get_child(self.params_search["collection"])
+            if not coll:
+                raise ValueError(f"Collection {coll} not found in catalog {catalog}")
+            item_list = [x for x in coll.get_items(recursive=True)]
+            item_coll = pystac.ItemCollection(item_list)
+
+            # filter to spatio-temporal extent
+            bbox = self.params_search["aoi"].bounds
+            start = self.params_search["t_start"]
+            end = self.params_search["t_end"]
+            item_coll = STACCube._filter_spatio_temporal(
+                item_coll, bbox, 4326, start, end
             )
+            self.item_coll = pystac.ItemCollection(item_coll)
+
+        # search for dynamic catalogs
         else:
-            catalog = Client.open(
-                self.params_search["catalog"],
-                stac_io=StacApiIO(max_retries=retry, timeout=1800),
+            # init retry
+            retry = Retry(
+                total=5,
+                backoff_factor=1,
+                status_forcelist=[408, 502, 503, 504],
+                allowed_methods=None,
             )
 
-        # make search
-        query = catalog.search(
-            collections=self.params_search["collection"],
-            datetime=[
-                np.datetime_as_string(self.params_search["t_start"], timezone="UTC"),
-                np.datetime_as_string(self.params_search["t_end"], timezone="UTC"),
-            ],
-            intersects=self.params_search["aoi"],
-        )
-        self.item_coll = query.item_collection()
+            # init search client
+            if self.params_search["provider"] == "Planetary":
+                catalog = Client.open(
+                    self.params_search["catalog"],
+                    modifier=pc.sign_inplace,
+                    stac_io=StacApiIO(max_retries=retry, timeout=1800),
+                )
+            else:
+                catalog = Client.open(
+                    self.params_search["catalog"],
+                    stac_io=StacApiIO(max_retries=retry, timeout=1800),
+                )
+
+            # make search
+            start = np.datetime_as_string(self.params_search["t_start"], timezone="UTC")
+            end = np.datetime_as_string(self.params_search["t_end"], timezone="UTC")
+            query = catalog.search(
+                collections=self.params_search["collection"],
+                datetime=[start, end],
+                intersects=self.params_search["aoi"],
+            )
+            self.item_coll = query.item_collection()
 
     def _postprocess_search(self, layer_key):
         """

@@ -323,6 +323,18 @@
             }
         }
     },
+    "OpenGeoHub": {
+        "reflectance": {
+            "ndvi": {
+                "name": "ndvi_landsat.glad.ard_p50_0..0cm",
+                "description": "Normalized Difference Vegetation Index (NDVI) calculated as (NIR - RED) / (NIR + RED). Values are aggregated per quarter using cloud-free observations.",
+                "type": "continuous",
+                "values": {},
+                "dtype": "float32",
+                "na_value": "None"
+            }
+        }
+    },
     "Planetary": {
         "reflectance": {
             "s1_amp_vv": {
