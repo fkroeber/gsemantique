@@ -1,3 +1,4 @@
+import geopandas as gpd
 import gsemantique as gsq
 import json
 import logging
@@ -5,11 +6,13 @@ import numpy as np
 import pandas as pd
 import planetary_computer as pc
 import pystac
+import shapely
 import xarray as xr
 from pystac_client import Client
 from pystac_client.stac_api_io import StacApiIO
 from semantique.datacube import STACCube
 from semantique.processor.core import FakeProcessor
+from semantique.extent import SpatialExtent
 from urllib3 import Retry
 
 logger = logging.getLogger(__name__)
@@ -36,15 +39,31 @@ class Finder:
             ds_catalog (DatasetCatalog): Dataset catalog containing the data sets to be searched
             t_start (str): Start time of the search
             t_end (str): End time of the search
-            aoi (shapely.geometry): Area of interest in WGS84 coordinates (EPSG:4326)
+            aoi (Union[semantique.extent.SpatialExtent, gpd.GeoDataFrame, shapely.geometry.Polygon]):
+                Area of interest in WGS84 coordinates (EPSG:4326).
             layout_file (str): Path to the datacube layout file
         """
+        self.params_search = {}
         self.layout_file = layout_file
         self.ds_catalog = ds_catalog
         self.t_start = t_start
         self.t_end = t_end
-        self.aoi = aoi
-        self.params_search = {}
+
+        # convert aoi to required format
+        if isinstance(aoi, SpatialExtent):
+            aoi = aoi._features
+        if isinstance(aoi, gpd.geodataframe.GeoDataFrame):
+            if len(aoi) > 1:
+                logger.warn(
+                    "AoI consists of multiple polygons. They will be dissolved."
+                )
+                self.aoi = aoi.to_crs(4326).dissolve().geometry[0]
+            else:
+                self.aoi = aoi.to_crs(4326).geometry[0]
+        elif isinstance(aoi, shapely.geometry.polygon.Polygon):
+            self.aoi = aoi
+        else:
+            raise ValueError(f"Invalid AoI specification (type: {type(aoi)}).")
 
     def search_auto(self, recipe, mapping, **kwargs):
         # fake run to resolve data references
