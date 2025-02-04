@@ -1,4 +1,5 @@
 import geopandas as gpd
+import gsemantique as gsq
 import json
 import os
 import pandas as pd
@@ -11,13 +12,8 @@ from datetime import datetime
 from shapely.geometry import box
 from pathlib import Path
 
-from gsemantique.data.datasets import DatasetCatalog
-from gsemantique.data.search import Finder
-from gsemantique.process.scaling import TileHandler, TileHandlerParallel
-from gsemantique.process.utils import change_dtype, update_na
-
 # load dataset catalog
-ds_catalog = DatasetCatalog()
+ds_catalog = gsq.DatasetCatalog()
 ds_catalog.load()
 
 # set up parameters to be assessed
@@ -41,26 +37,22 @@ class Tester:
     ):
         self.recipe = recipe
         self.t_interval = t_interval
-        self.aoi_file = aoi_file
+        self.aoi = gpd.read_file(aoi_file).to_crs(4326)
         self.tile_handler = tile_handler
         self.merge_mode = merge_mode
         self.out_dir = out_dir
         self.res = res
         self.epsg = epsg
-        # parse space
-        self.gdf = gpd.read_file(self.aoi_file).to_crs(4326)
-        self.aoi = box(*self.gdf.total_bounds)
-        self.space = sq.SpatialExtent(self.gdf)
         # execute workflow
         self._create_context()
         self._run_model()
 
     def _create_context(self):
         # define custom verbs
-        custom_dict = {"change_dtype": change_dtype, "update_na": update_na}
+        custom_dict = {"change_dtype": gsq.change_dtype, "update_na": gsq.update_na}
 
         # define an empty data cube
-        with open("../gsemantique/data/layout.json", "r") as file:
+        with open(gsq.LAYOUT_PATH, "r") as file:
             dc = sq.datacube.STACCube(json.load(file), src=[])
 
         # load mapping
@@ -74,11 +66,11 @@ class Tester:
         recipe = sq.QueryRecipe(recipe)
 
         # find data
-        fdr = Finder(ds_catalog, self.t_interval[0], self.t_interval[1], self.aoi)
-        fdr.search_auto(recipe, mapping, dc, custom_verbs=custom_dict)
+        fdr = gsq.Finder(ds_catalog, self.t_interval[0], self.t_interval[1], self.aoi)
+        fdr.search_auto(recipe, mapping, custom_verbs=custom_dict)
 
         # init datacube
-        with open("../gsemantique/data/layout.json", "r") as file:
+        with open(gsq.LAYOUT_PATH, "r") as file:
             dc = sq.datacube.STACCube(
                 json.load(file),
                 src=fdr.item_coll,
@@ -90,7 +82,7 @@ class Tester:
             pd.Timestamp(fdr.params_search["t_start"]),
             pd.Timestamp(fdr.params_search["t_end"]),
         )
-        space = sq.SpatialExtent(self.gdf)
+        space = sq.SpatialExtent(self.aoi)
 
         # compose to context dict
         context = {
@@ -132,7 +124,7 @@ class Tester:
                 self.response = self.recipe.execute(**context)
 
         if self.tile_handler == "single":
-            self.th = TileHandler(
+            self.th = gsq.TileHandler(
                 chunksize_s=256,
                 chunksize_t="2W",
                 merge_mode=self.merge_mode,
@@ -142,11 +134,11 @@ class Tester:
                 **self.context,
             )
             self.th.execute()
-            # if self.merge_mode=="single":
-            #     self.response = self.th.joint_res
+            if self.merge_mode == "single":
+                self.response = self.th.joint_res
 
         elif self.tile_handler == "parallel":
-            self.th = TileHandlerParallel(
+            self.th = gsq.TileHandlerParallel(
                 chunksize_s=128,
                 merge_mode=self.merge_mode,
                 out_dir=out_dir,
@@ -161,6 +153,7 @@ class Tester:
 
 
 if __name__ == "__main__":
+    print("\nRunning test no. 1")
     tester = Tester(
         recipe="recipes/01_treduce.json",
         aoi_file="aois/polygon.geojson",
@@ -172,6 +165,7 @@ if __name__ == "__main__":
         epsg=32634,
     )
 
+    print("\nRunning test no. 2")
     tester = Tester(
         recipe="recipes/01_treduce.json",
         aoi_file="aois/polygon.geojson",
@@ -183,6 +177,7 @@ if __name__ == "__main__":
         epsg=32634,
     )
 
+    print("\nRunning test no. 3")
     tester = Tester(
         recipe="recipes/01_treduce.json",
         aoi_file="aois/polygon.geojson",
@@ -195,6 +190,7 @@ if __name__ == "__main__":
     )
 
     # works (omits small polygon)
+    print("\nRunning test no. 4")
     tester = Tester(
         recipe="recipes/01_treduce.json",
         aoi_file="aois/multipolygon.geojson",
@@ -206,6 +202,7 @@ if __name__ == "__main__":
         epsg=32754,
     )
 
+    print("\nRunning test no. 5")
     tester = Tester(
         recipe="recipes/01_treduce.json",
         aoi_file="aois/multipoint.geojson",
@@ -217,6 +214,7 @@ if __name__ == "__main__":
         epsg=32634,
     )
 
+    print("\nRunning test no. 6")
     tester = Tester(
         recipe="recipes/01_treduce.json",
         aoi_file="aois/polygon.geojson",
@@ -228,6 +226,7 @@ if __name__ == "__main__":
         epsg=32632,
     )
 
+    print("\nRunning test no. 7")
     tester = Tester(
         recipe="recipes/02_sreduce.json",
         aoi_file="aois/polygon.geojson",
@@ -239,6 +238,7 @@ if __name__ == "__main__":
         epsg=32634,
     )
 
+    print("\nRunning test no. 8")
     tester = Tester(
         recipe="recipes/03_tconcatenated.json",
         aoi_file="aois/polygon.geojson",
@@ -250,6 +250,7 @@ if __name__ == "__main__":
         epsg=32634,
     )
 
+    print("\nRunning test no. 9")
     tester = Tester(
         recipe="recipes/03_tconcatenated.json",
         aoi_file="aois/multipolygon.geojson",
@@ -261,6 +262,7 @@ if __name__ == "__main__":
         epsg=32754,
     )
 
+    print("\nRunning test no. 10")
     tester = Tester(
         recipe="recipes/04_sconcatenated.json",
         aoi_file="aois/polygon.geojson",
@@ -272,6 +274,7 @@ if __name__ == "__main__":
         epsg=32634,
     )
 
+    print("\nRunning test no. 11")
     tester = Tester(
         recipe="recipes/05_tgrouped.json",
         aoi_file="aois/multipolygon.geojson",
@@ -283,6 +286,7 @@ if __name__ == "__main__":
         epsg=32754,
     )
 
+    print("\nRunning test no. 12")
     tester = Tester(
         recipe="recipes/05_tgrouped.json",
         aoi_file="aois/multipoint.geojson",
@@ -294,6 +298,7 @@ if __name__ == "__main__":
         epsg=32632,
     )
 
+    print("\nRunning test no. 13")
     tester = Tester(
         recipe="recipes/06_sgrouped.json",
         aoi_file="aois/polygon.geojson",
@@ -305,6 +310,7 @@ if __name__ == "__main__":
         epsg=32634,
     )
 
+    print("\nRunning test no. 14")
     tester = Tester(
         recipe="recipes/06_sgrouped.json",
         aoi_file="aois/multipolygon.geojson",
@@ -316,6 +322,7 @@ if __name__ == "__main__":
         epsg=32754,
     )
 
+    print("\nRunning test no. 15")
     tester = Tester(
         recipe="recipes/07_tmulti_grouped.json",
         aoi_file="aois/polygon.geojson",
@@ -327,6 +334,7 @@ if __name__ == "__main__":
         epsg=32634,
     )
 
+    print("\nRunning test no. 16")
     tester = Tester(
         recipe="recipes/08_tmulti_double_strat.json",
         aoi_file="aois/polygon.geojson",
@@ -338,6 +346,7 @@ if __name__ == "__main__":
         epsg=32634,
     )
 
+    print("\nRunning test no. 17")
     tester = Tester(
         recipe="recipes/09_udf.json",
         aoi_file="aois/polygon.geojson",

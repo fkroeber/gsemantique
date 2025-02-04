@@ -6,7 +6,7 @@
         "with": {
           "type": "layer",
           "reference": [
-            "Planet",
+            "Planetary",
             "reflectance",
             "lndst_qa"
           ]
@@ -29,7 +29,7 @@
         "with": {
           "type": "layer",
           "reference": [
-            "Planet",
+            "Planetary",
             "reflectance",
             "lndst_qa"
           ]
@@ -60,7 +60,7 @@
         "with": {
           "type": "layer",
           "reference": [
-            "Planet",
+            "Planetary",
             "reflectance",
             "lndst_nir08"
           ]
@@ -74,7 +74,7 @@
               "y": {
                 "type": "layer",
                 "reference": [
-                  "Planet",
+                  "Planetary",
                   "reflectance",
                   "lndst_red"
                 ]
