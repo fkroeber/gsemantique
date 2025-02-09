@@ -33,7 +33,7 @@ dev_dependencies = [
 setup(
     name="gsemantique",
     version="0.1.0",
-    description="Global semantic EO dataset querying",
+    description="On-demand semantic EO data cubes",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/fkroeber/gsemantique",
