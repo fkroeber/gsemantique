@@ -16,11 +16,185 @@ from pathlib import Path
 ds_catalog = gsq.DatasetCatalog()
 ds_catalog.load()
 
-# set up parameters to be assessed
+# set up parameter combinations to be assessed
 recipes = [x.as_posix() for x in Path("recipes").rglob("*.json")]
-t_intervals = [["2017-06-01", "2017-07-01"], ["2017-01-01", "2017-07-01"]]
+t_intervals = [["2017-06-01", "2017-06-08"], ["2017-05-01", "2017-07-01"]]
 aoi_files = [x.as_posix() for x in Path("aois").rglob("*.geojson")]
 tile_handlers = ["single", "parallel"]
+
+# set up test cases
+test_cases = [
+    dict(
+        recipe="recipes/01_treduce.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/01_treduce.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="parallel",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/01_treduce.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="vrt_shapes",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/01_treduce.json",
+        aoi_file="aois/multipolygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="vrt_shapes",
+        out_dir=True,
+        res=100,
+        epsg=32754,
+    ),
+    dict(
+        recipe="recipes/01_treduce.json",
+        aoi_file="aois/multipoint.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="vrt_shapes",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/01_treduce.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=50,
+        epsg=32632,
+    ),
+    dict(
+        recipe="recipes/02_sreduce.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/03_tconcatenated.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/03_tconcatenated.json",
+        aoi_file="aois/multipolygon.geojson",
+        t_interval=t_intervals[1],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32754,
+    ),
+    dict(
+        recipe="recipes/04_sconcatenated.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=False,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/05_tgrouped.json",
+        aoi_file="aois/multipolygon.geojson",
+        t_interval=t_intervals[1],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32754,
+    ),
+    dict(
+        recipe="recipes/05_tgrouped.json",
+        aoi_file="aois/multipoint.geojson",
+        t_interval=t_intervals[1],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32632,
+    ),
+    dict(
+        recipe="recipes/06_sgrouped.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/06_sgrouped.json",
+        aoi_file="aois/multipolygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32754,
+    ),
+    dict(
+        recipe="recipes/07_tmulti_grouped.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="vrt_shapes",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/08_tmulti_double_strat.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="vrt_shapes",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+    dict(
+        recipe="recipes/09_udf.json",
+        aoi_file="aois/polygon.geojson",
+        t_interval=t_intervals[0],
+        tile_handler="single",
+        merge_mode="merged",
+        out_dir=True,
+        res=100,
+        epsg=32634,
+    ),
+]
 
 
 class Tester:
@@ -46,14 +220,12 @@ class Tester:
         # execute workflow
         self._create_context()
         self._run_model()
+        # check that results have been produced without any errors
+        assert len(self.th.tile_results) > 0
 
     def _create_context(self):
         # define custom verbs
         custom_dict = {"change_dtype": gsq.change_dtype, "update_na": gsq.update_na}
-
-        # define an empty data cube
-        with open(gsq.LAYOUT_PATH, "r") as file:
-            dc = sq.datacube.STACCube(json.load(file), src=[])
 
         # load mapping
         with open("mapping.json", "r") as file:
@@ -77,6 +249,7 @@ class Tester:
                 group_by_solar_day=True,
                 dask_params=None,
             )
+
         # define spatio-temporal context vars
         time = sq.TemporalExtent(
             pd.Timestamp(fdr.params_search["t_start"]),
@@ -134,8 +307,6 @@ class Tester:
                 **self.context,
             )
             self.th.execute()
-            if self.merge_mode == "single":
-                self.response = self.th.joint_res
 
         elif self.tile_handler == "parallel":
             self.th = gsq.TileHandlerParallel(
@@ -144,216 +315,13 @@ class Tester:
                 out_dir=out_dir,
                 reauth=False,
                 verbose=True,
-                n_procs=os.cpu_count(),
+                n_procs=min(2, os.cpu_count()),
                 **self.context,
             )
             self.th.execute()
-            if self.merge_mode == "single":
-                self.response = self.th.joint_res
 
 
 if __name__ == "__main__":
-    print("\nRunning test no. 1")
-    tester = Tester(
-        recipe="recipes/01_treduce.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
-
-    print("\nRunning test no. 2")
-    tester = Tester(
-        recipe="recipes/01_treduce.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
-
-    print("\nRunning test no. 3")
-    tester = Tester(
-        recipe="recipes/01_treduce.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="vrt_shapes",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
-
-    # works (omits small polygon)
-    print("\nRunning test no. 4")
-    tester = Tester(
-        recipe="recipes/01_treduce.json",
-        aoi_file="aois/multipolygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="vrt_shapes",
-        out_dir=True,
-        res=100,
-        epsg=32754,
-    )
-
-    print("\nRunning test no. 5")
-    tester = Tester(
-        recipe="recipes/01_treduce.json",
-        aoi_file="aois/multipoint.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="vrt_shapes",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
-
-    print("\nRunning test no. 6")
-    tester = Tester(
-        recipe="recipes/01_treduce.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=50,
-        epsg=32632,
-    )
-
-    print("\nRunning test no. 7")
-    tester = Tester(
-        recipe="recipes/02_sreduce.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
-
-    print("\nRunning test no. 8")
-    tester = Tester(
-        recipe="recipes/03_tconcatenated.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
-
-    print("\nRunning test no. 9")
-    tester = Tester(
-        recipe="recipes/03_tconcatenated.json",
-        aoi_file="aois/multipolygon.geojson",
-        t_interval=t_intervals[1],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32754,
-    )
-
-    print("\nRunning test no. 10")
-    tester = Tester(
-        recipe="recipes/04_sconcatenated.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=False,
-        res=100,
-        epsg=32634,
-    )
-
-    print("\nRunning test no. 11")
-    tester = Tester(
-        recipe="recipes/05_tgrouped.json",
-        aoi_file="aois/multipolygon.geojson",
-        t_interval=t_intervals[1],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32754,
-    )
-
-    print("\nRunning test no. 12")
-    tester = Tester(
-        recipe="recipes/05_tgrouped.json",
-        aoi_file="aois/multipoint.geojson",
-        t_interval=t_intervals[1],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32632,
-    )
-
-    print("\nRunning test no. 13")
-    tester = Tester(
-        recipe="recipes/06_sgrouped.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
-
-    print("\nRunning test no. 14")
-    tester = Tester(
-        recipe="recipes/06_sgrouped.json",
-        aoi_file="aois/multipolygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32754,
-    )
-
-    print("\nRunning test no. 15")
-    tester = Tester(
-        recipe="recipes/07_tmulti_grouped.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="vrt_shapes",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
-
-    print("\nRunning test no. 16")
-    tester = Tester(
-        recipe="recipes/08_tmulti_double_strat.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="vrt_shapes",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
-
-    print("\nRunning test no. 17")
-    tester = Tester(
-        recipe="recipes/09_udf.json",
-        aoi_file="aois/polygon.geojson",
-        t_interval=t_intervals[0],
-        tile_handler="single",
-        merge_mode="merged",
-        out_dir=True,
-        res=100,
-        epsg=32634,
-    )
+    for i, test_case in enumerate(test_cases):
+        print(f"\nRunning test no. {i}")
+        tester = Tester(**test_case)
