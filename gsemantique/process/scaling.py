@@ -60,11 +60,20 @@ class TileHandler:
         :class:`pyproj.crs.CRS`. This includes :obj:`pyproj.crs.CRS` objects
         themselves, as well as EPSG codes and WKT strings. If :obj:`None`, the
         CRS of the extent itself is used.
-      chunksize_t : int, tbd
-        Temporal chunksize
-      chunksize_s : int, tbd
-        Spatial chunksize
-      tile_dim : tbd
+      chunksize_t : str, Timedelta, datetime.timedelta, or DateOffset
+        Temporal chunksize to be used for tiling. If the recipe allows it, the
+        chunksize will be used to split the time dimension into smaller parts.
+        The chunksize should be given as a string that can be parsed by
+        :class:`pandas.date_range`.
+      chunksize_s : int
+        Spatial chunksize to be used for tiling. If the recipe allows it, the
+        chunksize will be used to split the spatial extent into smaller parts.
+        The chunksize should be given as an integer specifying the number of
+        pixels of a chunk.
+      tile_dim : str or None
+        Dimension to be used for tiling. Options are None, "time", "space". If
+        None, the dimension will be chosen automatically based on the recipe
+        structure.
       merge_mode: Mode of how tiled results shall be merged. Options are None,
       "merged", "vrt_tiles", "vrt_shapes".
           None - Tiled results will be returned as provided by
@@ -101,9 +110,15 @@ class TileHandler:
           <output path> - Only available for ["merged", "vrt_shapes", "vrt_tiles"].
                     Outputs will be written to the specified path and additionally be
                     accessible via `self.tile_results`.
-      caching : bool, tbd
-      reauth : bool, tbd
-      verbose : bool, tbd
+      caching : bool
+        If True, semantiques caching will be used to store data called repeatedly in
+        a given chunk.
+      reauth : bool
+        If True, the datacube items will be reauthenticated in a separate thread to
+        ensure that the processing can continue in case of longer processing times.
+      verbose : bool
+        If True, progress bars and additional information will be shown during
+        processing.
       **config :
         Additional configuration parameters forwarded to QueryRecipe.execute.
         See :class:`QueryRecipe`, respectively :class:`QueryProcessor`.
@@ -625,8 +640,8 @@ class TileHandler:
 
     def _execute_workflow(self, context):
         """
-        Execute the workflow and handle response. 
-        
+        Execute the workflow and handle response.
+
         Possible reauthentication problems with the items are handled by putting the
         processing on hold until a valid authentication of the items can be confirmed
         again. Possible errors originating from other server-related issues are handled
@@ -635,7 +650,7 @@ class TileHandler:
         Note that further exceptions may occur as a result of the tiling process when the
         recipe is executed for a tile that does not contain any data. This manifests in
         EmptyDataErrors, AssertionErrors, or ValueErrors, all originating from calls to
-        datacube.retrieve(), often related to trim=True being set in the datacube config 
+        datacube.retrieve(), often related to trim=True being set in the datacube config
         or the parse_extent function. These errors are completely ignored.
         """
         run_workflow = True
