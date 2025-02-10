@@ -37,7 +37,7 @@ setup(
     description="On-demand semantic EO data cubes",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/fkroeber/gsemantique",
+    url="https://github.com/Sen2Cube-at/gsemantique",
     author="Felix Kröber",
     author_email="felix.kroeber@plus.ac.at",
     packages=find_packages(),

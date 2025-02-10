@@ -4,16 +4,16 @@ Thanks for taking the time to contribute to gsemantique. Contributions are welco
 
 ## Creating issues
 
-Opening [issues](https://github.com/fkroeber/gsemantique/issues) is also a form of contributing. They help us to improve the quality and user-friendliness of the package, as well as to build a community around the package.
+Opening [issues](https://github.com/Sen2Cube-at/gsemantique/issues) is also a form of contributing. They help us to improve the quality and user-friendliness of the package, as well as to build a community around the package.
 
 Use **Issues** if
 
-- You are using the package and something is not working as it should. In that case, use the [bug report template](https://github.com/fkroeber/gsemantique/blob/main/.github/ISSUE_TEMPLATE/bug_report.md). Please first check if its really a bug in `gsemantique`, and if there are not already open issues reporting the same bug.
-- You have a request for a new feature. In that case, use the [feature request template](https://github.com/fkroeber/gsemantique/blob/main/.github/ISSUE_TEMPLATE/feature_request.md). Please first check if the feature is not already present, and if there are not already open issues requesting the same feature.
+- You are using the package and something is not working as it should. In that case, use the [bug report template](https://github.com/Sen2Cube-at/gsemantique/blob/main/.github/ISSUE_TEMPLATE/bug_report.md). Please first check if its really a bug in `gsemantique`, and if there are not already open issues reporting the same bug.
+- You have a request for a new feature. In that case, use the [feature request template](https://github.com/Sen2Cube-at/gsemantique/blob/main/.github/ISSUE_TEMPLATE/feature_request.md). Please first check if the feature is not already present, and if there are not already open issues requesting the same feature.
 
 ## Solving issues
 
-If you know how to write Python you are welcome to contribute by solving open issues, for example by implementing new [features](https://github.com/fkroeber/gsemantique/labels/enhancement) or fixing [bugs](https://github.com/fkroeber/gsemantique/labels/bug). Solving issues does not always involve writing code, you can also help by improving and extending [documentation](https://github.com/fkroeber/gsemantique/labels/documentation).
+If you know how to write Python you are welcome to contribute by solving open issues, for example by implementing new [features](https://github.com/Sen2Cube-at/gsemantique/labels/enhancement) or fixing [bugs](https://github.com/Sen2Cube-at/gsemantique/labels/bug). Solving issues does not always involve writing code, you can also help by improving and extending [documentation](https://github.com/Sen2Cube-at/gsemantique/labels/documentation).
 
 In any case, the common code contributing workflow is:
 
@@ -22,7 +22,7 @@ In any case, the common code contributing workflow is:
 Clone this GitHub repo, or alternatively first fork it and then clone your forked version of the repo. After cloning, enter the cloned directory.
 
 ```
-git clone https://github.com/fkroeber/gsemantique.git
+git clone https://github.com/Sen2Cube-at/gsemantique.git
 cd gsemantique
 ```
 
@@ -81,6 +81,6 @@ git push origin my_new_branch
 
 #### 6. Creating a pull request
 
-Create a request to merge your changes into the main branch using the [Pull Request](https://github.com/fkroeber/gsemantique/pulls) functionality from GitHub. This should automatically provide you with the [pull request template](https://github.com/fkroeber/gsemantique/blob/main/.github/pull_request_template.md). Add at least one of the package maintainer as reviewer of your pull request, and make sure the automatic checks done by GitHub pass without errors.
+Create a request to merge your changes into the main branch using the [Pull Request](https://github.com/Sen2Cube-at/gsemantique/pulls) functionality from GitHub. This should automatically provide you with the [pull request template](https://github.com/Sen2Cube-at/gsemantique/blob/main/.github/pull_request_template.md). Add at least one of the package maintainer as reviewer of your pull request, and make sure the automatic checks done by GitHub pass without errors.
 
 Happy coding!

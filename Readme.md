@@ -16,20 +16,20 @@ At this moment the package can only be installed from source. This can be done i
 1) Using pip to install directly from GitHub:
 
 ```
-pip install git+https://github.com/fkroeber/gsemantique.git
+pip install git+https://github.com/Sen2Cube-at/gsemantique.git
 ```
 
 2) Cloning the repository first and then install with pip:
 
 ```
-git clone https://github.com/fkroeber/gsemantique.git
+git clone https://github.com/Sen2Cube-at/gsemantique.git
 cd gsemantique
 pip install .
 ```
 
 ## Usage
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fkroeber/gsemantique/main)
-[![Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/fkroeber/gsemantique/blob/main)  
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Sen2Cube-at/gsemantique/main)
+[![Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/Sen2Cube-at/gsemantique/blob/main)  
 
 The package contains several [Jupyter demo notebooks](./demo/). They are providing an overview on the package's operating principles and some hands-on examples. If you want to avoid the installation setup effort and explore the notebooks in an interactive manner, you can make use of Binder or Google Colab. Simply click on the Binder or Google Colab badge. Doing so will setup an online environment for you with the package and all its dependencies installed. No installations or complicated system configurations required, you only need a web browser.
 
