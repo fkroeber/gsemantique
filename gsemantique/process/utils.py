@@ -28,9 +28,9 @@ def update_na(obj, track_types=True, na_value=None, **kwargs):
     newobj = obj.copy(deep=True)
     na_value = eval(na_value) if isinstance(na_value, str) else na_value
     if newobj.rio.nodata is None:
-        nodata = np.NaN if newobj.dtype.kind == "f" else None
+        nodata = np.nan if newobj.dtype.kind == "f" else None
         if na_value is not None:
-            if nodata is np.NaN:
+            if nodata is np.nan:
                 newobj.values = np.where(
                     np.isnan(newobj.values), na_value, newobj.values
                 )
@@ -44,7 +44,7 @@ def update_na(obj, track_types=True, na_value=None, **kwargs):
     else:
         if na_value is not None:
             nodata = newobj.rio.nodata
-            if nodata is np.NaN:
+            if nodata is np.nan:
                 newobj.values = np.where(
                     np.isnan(newobj.values), na_value, newobj.values
                 )
