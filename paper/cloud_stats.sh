@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # define the base name for the output directory
-output_dir_base="/home/ubuntu/projects/clouds/results"
+output_dir_base="results/cloud_stats"
 mkdir -p "$output_dir_base"
 
 # define the cloud thresholds to test
@@ -33,7 +33,7 @@ do
             echo "Year: $year, Month: $month, Cloud Threshold: $cloud_thresh" | tee -a "$log_file"
 
             # call the Python script with these parameters and log the output
-            /home/ubuntu/venv/gsemantique/bin/python3 large_scale_clouds.py \
+            /home/ubuntu/venv/gsemantique/bin/python3 cloud_stats.py \
                 --t_start "$t_start" \
                 --t_end "$t_end" \
                 --cloud_thresh "$cloud_thresh" \

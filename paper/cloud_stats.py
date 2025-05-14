@@ -1,7 +1,10 @@
-import logging
+#!/usr/bin/env python
+# coding: utf-8
+
 import geopandas as gpd
 import gsemantique as gsq
 import json
+import logging
 import os
 import pandas as pd
 import semantique as sq
@@ -19,7 +22,7 @@ warnings.filterwarnings("ignore")
 output_dir = f"results/{datetime.now().strftime('%H%M%S')}"
 
 # read European NUTS regions as AOI
-nuts = gpd.read_file("files/aoi_europe.geojson")
+nuts = gpd.read_file("aoi_europe.geojson")
 aoi_polygons = nuts[nuts["LEVL_CODE"] == 1]
 excl_list = ["RUP FR — Régions Ultrapériphériques Françaises"]
 aoi_polygons = aoi_polygons[~aoi_polygons["NUTS_NAME"].isin(excl_list)]
